@@ -1,0 +1,30 @@
+[package]
+name = "achat"
+version = "0.1.0"
+edition = "2021"
+description = "Super simple tokio chat server for educational purposes."
+repository = "https://github.com/barafael/achat"
+license-file = "LICENSE"
+
+[[bin]]
+name = "echo"
+path = "bin/echo.rs"
+
+[[bin]]
+name = "chat"
+path = "bin/chat.rs"
+
+[dev-dependencies]
+tokio-test = "0.4.2"
+
+[dependencies]
+anyhow = "1.0.56"
+tokio = { version = "1", features = [
+    "io-util",
+    "macros",
+    "net",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "time",
+] }
