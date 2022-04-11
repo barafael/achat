@@ -1,5 +1,6 @@
 # achat
-Super simple examples of network applications using tokio. Purely educational purposes.
+A collection of simple modules which showcase simple use of tasks, channels, and other tokio primitives to implement simple networking applications.
+Purely educational purposes.
 
 # echo
 TCP clients connect to the server. The server returns each message they send back to them.
