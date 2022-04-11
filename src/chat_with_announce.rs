@@ -53,18 +53,18 @@ pub async fn announce_uptime(
     let mut interval = tokio::time::interval(duration);
     loop {
         interval.tick().await;
-        topic
-            .send(format!("Up for {}s.", i * duration.as_secs()))
-            .context("Failed to announce uptime")?;
+        if let Err(_e) = topic.send(format!("Up for {}s.", i * duration.as_secs())) {
+            // receivers dropped.
+            break Ok(());
+        }
         i += 1;
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::time::Duration;
-
     use super::*;
+    use std::time::Duration;
     use tokio_test::io::Builder as Mock;
 
     #[tokio::test]
@@ -120,4 +120,61 @@ mod test {
 
         tokio::join!(handle).0.unwrap().unwrap();
     }
+
+    #[tokio::test]
+    async fn announces_time() {
+        tokio::time::pause();
+        let (tx, mut rx) = watch::channel("initial".to_string());
+        let duration = Duration::from_secs(1);
+
+        let handle = tokio::spawn(announce_uptime(tx, duration));
+
+        rx.changed().await.unwrap();
+        let reply = rx.borrow().clone();
+        assert_eq!("Up for 0s.", reply);
+
+        rx.changed().await.unwrap();
+        let reply = rx.borrow().clone();
+        assert_eq!("Up for 1s.", reply);
+
+        rx.changed().await.unwrap();
+        let reply = rx.borrow().clone();
+        assert_eq!("Up for 2s.", reply);
+
+        drop(rx);
+        tokio::join!(handle).0.unwrap().unwrap();
+    }
+
+    /*
+    #[tokio::test]
+    async fn forwards_announcements_to_clients() {
+        tokio::time::pause();
+        let writer = Mock::new()
+            .write(b"topic changed: hello")
+            .write(b"topic changed: i'm")
+            .write(b"topic changed: a")
+            .write(b"topic changed: teapot")
+            .build();
+        let reader = Mock::new().wait(Duration::from_secs(1)).build();
+
+        let (tx, _rx) = broadcast::channel(16);
+        let (topic_tx, topic_rx) = watch::channel("Initial topic".to_string());
+
+        let handle = tokio::spawn(handle_connection(
+            "127.0.0.3:8081".parse().unwrap(),
+            reader,
+            writer,
+            tx.clone(),
+            tx.subscribe(),
+            topic_rx,
+        ));
+
+        topic_tx.send("hello".to_string()).unwrap();
+        topic_tx.send("i'm".to_string()).unwrap();
+        topic_tx.send("a".to_string()).unwrap();
+        topic_tx.send("teapot".to_string()).unwrap();
+
+        tokio::join!(handle).0.unwrap().unwrap();
+    }
+    */
 }

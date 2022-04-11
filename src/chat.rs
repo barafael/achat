@@ -42,9 +42,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use std::time::Duration;
-
     use super::*;
+    use std::time::Duration;
     use tokio_test::io::Builder as Mock;
 
     #[tokio::test]
