@@ -1,6 +1,5 @@
-use std::net::SocketAddr;
-
 use anyhow::Context;
+use std::net::SocketAddr;
 use tokio::{
     io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader},
     sync::broadcast,

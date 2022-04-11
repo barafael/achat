@@ -5,14 +5,19 @@ edition = "2021"
 description = "Super simple tokio chat server for educational purposes."
 repository = "https://github.com/barafael/achat"
 license-file = "LICENSE"
+default-run = "chat"
+
+[[bin]]
+name = "chat"
+path = "bin/chat.rs"
 
 [[bin]]
 name = "echo"
 path = "bin/echo.rs"
 
 [[bin]]
-name = "chat"
-path = "bin/chat.rs"
+name = "collector"
+path = "bin/collector.rs"
 
 [dev-dependencies]
 tokio-test = "0.4.2"
