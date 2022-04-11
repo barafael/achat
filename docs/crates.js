@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["achat","anyhow","bytes","cfg_if","chat","chat_with_announce","collector","echo","libc","log","memchr","mio","num_cpus","pin_project_lite","proc_macro2","quote","socket2","syn","tokio","tokio_macros","unicode_xid"];
