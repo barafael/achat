@@ -96,7 +96,6 @@ mod test {
             tx,
         ));
 
-        tokio::try_join!(client).unwrap().0.unwrap();
-        tokio::try_join!(server).unwrap().0.unwrap();
+        tokio::join!(client, server).0.unwrap().unwrap();
     }
 }
