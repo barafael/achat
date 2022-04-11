@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Super simple tokio chat server for educational purposes."
 repository = "https://github.com/barafael/achat"
-license-file = "LICENSE"
+license = "Apache-2.0"
 default-run = "chat"
 
 [[bin]]
