@@ -145,20 +145,19 @@ mod test {
         tokio::join!(handle).0.unwrap().unwrap();
     }
 
-    /*
     #[tokio::test]
     async fn forwards_announcements_to_clients() {
         tokio::time::pause();
         let writer = Mock::new()
-            .write(b"topic changed: hello")
-            .write(b"topic changed: i'm")
-            .write(b"topic changed: a")
-            .write(b"topic changed: teapot")
+            .write(b"topic changed: hello\n")
+            .write(b"topic changed: i'm\n")
+            .write(b"topic changed: a\n")
+            .write(b"topic changed: teapot\n")
             .build();
         let reader = Mock::new().wait(Duration::from_secs(1)).build();
 
         let (tx, _rx) = broadcast::channel(16);
-        let (topic_tx, topic_rx) = watch::channel("Initial topic".to_string());
+        let (topic_tx, topic_rx) = watch::channel("Discarded initial topic".to_string());
 
         let handle = tokio::spawn(handle_connection(
             "127.0.0.3:8081".parse().unwrap(),
@@ -170,11 +169,13 @@ mod test {
         ));
 
         topic_tx.send("hello".to_string()).unwrap();
+        tokio::time::sleep(Duration::from_millis(10)).await;
         topic_tx.send("i'm".to_string()).unwrap();
+        tokio::time::sleep(Duration::from_millis(10)).await;
         topic_tx.send("a".to_string()).unwrap();
+        tokio::time::sleep(Duration::from_millis(10)).await;
         topic_tx.send("teapot".to_string()).unwrap();
 
         tokio::join!(handle).0.unwrap().unwrap();
     }
-    */
 }
