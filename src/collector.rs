@@ -5,15 +5,25 @@ use tokio::{
     sync::{mpsc, oneshot},
 };
 
+/// A message sent from a client to the server.
 #[derive(Debug)]
 pub enum Message {
+    /// Just some text.
     Text(String),
+
+    /// Request for the current message report.
     Report {
-        //addr: Option<SocketAddr>,
-        callback: oneshot::Sender<String>,
+        /// A oneshot channel for sending the reply.
+        reply: oneshot::Sender<String>,
     },
 }
 
+/// Receive messages on reader. When receiving `"report\r\n"`,
+/// send a report request, await the reply, and forward it on `writer`.
+/// Else, just forward the message on the collection sender `tx`.
+///
+/// # Termination
+/// In case the `reader` has no more bytes (`read_line` returned `Ok(0)`), terminate the future.
 pub async fn handle_connection<Reader, Writer>(
     addr: SocketAddr,
     reader: Reader,
@@ -34,20 +44,31 @@ where
             }
             if line.as_str() == "report\r\n" {
                 let (sender, receiver) = oneshot::channel();
-                let request = Message::Report { callback: sender };
+                let request = Message::Report { reply: sender };
                 tx.send((request, addr))
                     .await
                     .context("Failed to broadcast message from client")?;
-                let report = receiver.await.unwrap();
-                writer.write_all(report.as_bytes()).await.unwrap();
+                let report = receiver.await.context("Failed to fetch report")?;
+                writer
+                    .write_all(report.as_bytes())
+                    .await
+                    .context("Failed to forward report to client")?;
             } else {
-                tx.send((Message::Text(line.clone()), addr)).await.unwrap();
+                tx.send((Message::Text(line.clone()), addr))
+                    .await
+                    .context("Failed to send text message to server")?;
             }
             line.clear();
         }
     }
 }
 
+/// Receive messages on the given [`tokio::sync::mpsc::Receiver`].
+/// On receiving a simple text message, just add it to the hashmap (the key being the source socket address).
+/// On receiving a report message including a reply callback ([`tokio::sync::oneshot::Sender`]), serialize the hashmap, then send it on the callback.
+///
+/// # Termination
+/// In case there are no more senders, terminate the future.
 pub async fn collect(mut rx: mpsc::Receiver<(Message, SocketAddr)>) -> anyhow::Result<()> {
     let mut map: HashMap<SocketAddr, Vec<String>> = HashMap::new();
     loop {
@@ -56,9 +77,9 @@ pub async fn collect(mut rx: mpsc::Receiver<(Message, SocketAddr)>) -> anyhow::R
                 Message::Text(line) => {
                     map.entry(source).or_default().push(line);
                 }
-                Message::Report { callback } => {
-                    callback.send(format!("{:#?}\n", map)).unwrap();
-                }
+                Message::Report { reply } => reply
+                    .send(format!("{:#?}\n", map))
+                    .map_err(|_s| anyhow::anyhow!("Failed to send report on client callback"))?,
             },
             None => {
                 break Ok(());

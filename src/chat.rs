@@ -5,6 +5,14 @@ use tokio::{
     sync::broadcast,
 };
 
+/// Monitor the `reader` and the `rx` for messages.
+/// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].
+/// When receiving a message on `rx`, where the source socket address is not our own,
+/// forward it on `writer` (else, discard it).
+///
+/// # Termination
+/// If EOF is signalled on `reader` by `Ok(0)`, terminate the future.
+/// If an error or `None` is encountered, terminate the future.
 pub async fn handle_connection<Reader, Writer>(
     addr: SocketAddr,
     reader: Reader,
