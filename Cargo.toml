@@ -19,6 +19,10 @@ path = "bin/echo.rs"
 name = "collector"
 path = "bin/collector.rs"
 
+[[bin]]
+name = "chat_with_announce"
+path = "bin/chat_with_announce.rs"
+
 [dev-dependencies]
 tokio-test = "0.4.2"
 
