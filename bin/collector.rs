@@ -1,12 +1,19 @@
-use achat::collector;
+use achat::{collector, init_console_subscriber, Args};
 use anyhow::Context;
+use clap::Parser;
 use tokio::{net::TcpListener, sync::mpsc};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let listener = TcpListener::bind("localhost:8080")
+    let args = Args::parse();
+
+    if let Some(addr) = args.console {
+        init_console_subscriber(addr);
+    }
+
+    let listener = TcpListener::bind(&args.address)
         .await
-        .context("Failed to bind on localhost")?;
+        .context(format!("Failed to bind on {}", &args.address))?;
 
     let (tx, rx) = mpsc::channel(16);
 

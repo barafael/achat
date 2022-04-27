@@ -1,34 +1,15 @@
-use achat::chat;
+use achat::{chat, init_console_subscriber, Args};
 use anyhow::Context;
 use clap::Parser;
-use std::net::SocketAddr;
-use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::{io::AsyncWriteExt, net::TcpListener, sync::broadcast};
-
-/// Command Line Arguments
-#[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
-struct Args {
-    /// Adress to listen on
-    #[clap(short, long)]
-    address: String,
-
-    /// Address to publish console events on
-    #[clap(short, long)]
-    console: Option<String>,
-}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    if let Some(console) = args.console {
-        let console: SocketAddr = console.parse().unwrap();
-        console_subscriber::ConsoleLayer::builder()
-            .retention(Duration::from_secs(60))
-            .server_addr(console)
-            .init();
+    if let Some(addr) = args.console {
+        init_console_subscriber(addr);
     }
 
     let listener = TcpListener::bind(&args.address)
@@ -58,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
             .read_line(&mut name)
             .await
             .context("Failed to receive name")?;
-        if name.ends_with("\n") {
+        if name.ends_with('\n') {
             name.pop().unwrap();
         }
         if name.ends_with('\r') {

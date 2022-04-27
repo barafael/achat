@@ -15,6 +15,7 @@ use tokio::{
 /// If EOF is signalled on `reader` by `Ok(0)`, terminate the future.
 /// If an error or `None` is encountered, terminate the future.
 pub async fn handle_connection<Reader, Writer>(
+    name: String,
     addr: SocketAddr,
     reader: Reader,
     mut writer: Writer,
@@ -33,9 +34,9 @@ where
         tokio::select! {
             Ok(bytes_read) = reader.read_line(&mut line) => {
                 if bytes_read == 0 {
-                    break Ok(());
+                    break Ok(()); // EOF detected.
                 }
-                tx.send((line.clone(), addr)).context("Failed to broadcast message from client")?;
+                tx.send((format!("{name}: {line}"), addr)).context("Failed to broadcast message from client")?;
             },
             Ok((message, source)) = rx.recv() => {
                 if source == addr {
@@ -45,7 +46,7 @@ where
             },
             Ok(()) = topic_rx.changed() => {
                 writer.write_all(
-                    format!("topic changed: {}\n", *topic_rx.borrow()).as_bytes()).await.context("Unable to forward topic change")?;
+                    format!("Announcement: {}\n", *topic_rx.borrow()).as_bytes()).await.context("Unable to forward topic change")?;
             }
             else => {
                 break Ok(());
@@ -88,6 +89,7 @@ mod test {
         let (_topic_tx, topic_rx) = watch::channel("Chat topic".to_string());
 
         let handle = tokio::spawn(handle_connection(
+            "test".to_string(),
             "127.0.0.3:8081".parse().unwrap(),
             reader,
             writer,
@@ -99,7 +101,7 @@ mod test {
         let (message, socket) = rx.recv().await.unwrap();
         assert_eq!(
             (message, socket),
-            ("hello".to_string(), "127.0.0.3:8081".parse().unwrap())
+            ("test: hello".to_string(), "127.0.0.3:8081".parse().unwrap())
         );
 
         tokio::join!(handle).0.unwrap().unwrap();
@@ -116,6 +118,7 @@ mod test {
         let (_topic_tx, topic_rx) = watch::channel("Chat topic".to_string());
 
         let handle = tokio::spawn(handle_connection(
+            "test".to_string(),
             "127.0.0.3:8081".parse().unwrap(),
             reader,
             writer,
@@ -161,10 +164,10 @@ mod test {
     async fn forwards_announcements_to_clients() {
         tokio::time::pause();
         let writer = Mock::new()
-            .write(b"topic changed: hello\n")
-            .write(b"topic changed: i'm\n")
-            .write(b"topic changed: a\n")
-            .write(b"topic changed: teapot\n")
+            .write(b"Announcement: hello\n")
+            .write(b"Announcement: i'm\n")
+            .write(b"Announcement: a\n")
+            .write(b"Announcement: teapot\n")
             .build();
         let reader = Mock::new().wait(Duration::from_secs(1)).build();
 
@@ -172,6 +175,7 @@ mod test {
         let (topic_tx, topic_rx) = watch::channel("Discarded initial topic".to_string());
 
         let handle = tokio::spawn(handle_connection(
+            "test".to_string(),
             "127.0.0.3:8081".parse().unwrap(),
             reader,
             writer,
