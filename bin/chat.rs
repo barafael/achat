@@ -3,7 +3,8 @@ use anyhow::Context;
 use clap::Parser;
 use std::net::SocketAddr;
 use std::time::Duration;
-use tokio::{net::TcpListener, sync::broadcast};
+use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::{io::AsyncWriteExt, net::TcpListener, sync::broadcast};
 
 /// Command Line Arguments
 #[derive(Parser, Debug)]
@@ -21,7 +22,6 @@ struct Args {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    dbg!(&args);
 
     if let Some(console) = args.console {
         let console: SocketAddr = console.parse().unwrap();
@@ -31,26 +31,48 @@ async fn main() -> anyhow::Result<()> {
             .init();
     }
 
-    let listener = TcpListener::bind(args.address)
+    let listener = TcpListener::bind(&args.address)
         .await
-        .context("Failed to bind on localhost")?;
+        .context(format!("Failed to bind on {}", &args.address))?;
 
     let (tx, _rx) = broadcast::channel(16);
 
     loop {
-        let (mut socket, addr) = listener
+        let (socket, addr) = listener
             .accept()
             .await
             .context("Failed to accept on socket")?;
 
+        let mut socket = BufReader::new(socket);
+
         let tx = tx.clone();
         let rx = tx.subscribe();
 
-        tokio::spawn(async move {
-            let (reader, writer) = socket.split();
-            chat::handle_connection(addr, reader, writer, tx, rx)
-                .await
-                .expect("Failed to handle connection");
-        });
+        socket
+            .write_all(b"Enter your name: ")
+            .await
+            .context("Failed to ask for name")?;
+
+        let mut name = String::new();
+        socket
+            .read_line(&mut name)
+            .await
+            .context("Failed to receive name")?;
+        if name.ends_with("\n") {
+            name.pop().unwrap();
+        }
+        if name.ends_with('\r') {
+            name.pop().unwrap();
+        }
+
+        tokio::task::Builder::new()
+            .name(name.clone().as_str())
+            .spawn(async move {
+                let mut socket = socket.into_inner();
+                let (reader, writer) = socket.split();
+                chat::handle_connection(name.clone(), addr, reader, writer, tx, rx)
+                    .await
+                    .expect("Failed to handle connection");
+            });
     }
 }
