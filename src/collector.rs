@@ -10,10 +10,10 @@ use tokio::{
 pub enum Message {
     /// Just some text.
     Text {
-        /// Name field
-        name: String,
-        /// Message Content.
-        message: String,
+        /// Origin of message.
+        sender: String,
+        /// Message content.
+        content: String,
     },
 
     /// Request for the current message report.
@@ -60,8 +60,8 @@ where
                     .context("Failed to forward report to client")?;
             } else {
                 tx.send(Message::Text {
-                    name: name.clone(),
-                    message: line.clone(),
+                    sender: name.clone(),
+                    content: line.clone(),
                 })
                 .await
                 .context("Failed to send text message to server")?;
@@ -77,17 +77,29 @@ where
 ///
 /// # Termination
 /// In case there are no more senders, terminate the future.
+///
+/// # Errors
+/// Collection can fail if state serialization fails.
 pub async fn collect(mut rx: mpsc::Receiver<Message>) -> anyhow::Result<()> {
     let mut map: HashMap<String, Vec<String>> = HashMap::new();
     loop {
         match rx.recv().await {
             Some(message) => match message {
-                Message::Text { name, message } => {
-                    map.entry(name).or_default().push(message);
+                Message::Text { sender, content } => {
+                    map.entry(sender).or_default().push(content);
                 }
-                Message::Report { reply } => reply
-                    .send(format!("{:#?}\n", map))
-                    .map_err(|_s| anyhow::anyhow!("Failed to send report on client callback"))?,
+                Message::Report { reply } => {
+                    if reply
+                        .send(format!(
+                            "{}\n",
+                            serde_json::to_string_pretty(&map)
+                                .context("Unable to serialize state")?,
+                        ))
+                        .is_err()
+                    {
+                        eprintln!("Failed to send report on client callback");
+                    }
+                }
             },
             None => {
                 break Ok(());
@@ -108,7 +120,7 @@ mod test {
             .collect::<HashMap<String, Vec<String>>>();
 
         let writer = Mock::new()
-            .write(format!("{:#?}\n", expected).as_bytes())
+            .write(format!("{}\n", serde_json::to_string_pretty(&expected).unwrap()).as_bytes())
             .build();
         let reader = Mock::new().read(b"hello\r\n").read(b"report\r\n").build();
 

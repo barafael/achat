@@ -8,7 +8,7 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     if let Some(addr) = args.console {
-        init_console_subscriber(addr);
+        init_console_subscriber(&addr);
     }
 
     let listener = TcpListener::bind(&args.address)

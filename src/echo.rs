@@ -6,6 +6,9 @@ use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader
 ///
 /// # Termination
 /// When EOF is found on the reader, terminate the future.
+///
+/// # Errors
+/// Returns an error if forwarding failed.
 pub async fn handle_connection<Reader, Writer>(
     mut reader: Reader,
     mut writer: Writer,
@@ -20,10 +23,13 @@ where
         .context("Forwarding reader to writer failed")
 }
 
-/// Manually loop, recv and send on reader and writer.
+/// Manually loop, recv and send on `reader` and `writer`.
 ///
 /// # Termination
 /// In case the `reader` has no more bytes (`read_line` returned `Ok(0)`), terminate the future.
+///
+/// # Errors
+/// Returns an error if something goes wrong while reading or writing.
 pub async fn handle_connection_manually<Reader, Writer>(
     reader: Reader,
     mut writer: Writer,
@@ -67,7 +73,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn echo_works_manually() {
+    async fn manual_echo_works() {
         let writer = Mock::new().write(b"hello").build();
         let reader = Mock::new().read(b"hello").build();
         assert!(handle_connection_manually(reader, writer).await.is_ok());
