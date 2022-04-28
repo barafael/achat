@@ -1,4 +1,4 @@
-use achat::{collector, init_console_subscriber, Args};
+use achat::{collector, get_name, init_console_subscriber, Args};
 use anyhow::Context;
 use clap::Parser;
 use tokio::{net::TcpListener, sync::mpsc};
@@ -20,16 +20,18 @@ async fn main() -> anyhow::Result<()> {
     let _handle = tokio::spawn(collector::collect(rx));
 
     loop {
-        let (mut socket, addr) = listener
+        let (mut socket, _addr) = listener
             .accept()
             .await
             .context("Failed to accept on socket")?;
+
+        let name = get_name(&mut socket).await.context("Failed to get name")?;
 
         let tx = tx.clone();
 
         tokio::spawn(async move {
             let (reader, writer) = socket.split();
-            collector::handle_connection(addr, reader, writer, tx)
+            collector::handle_connection(name, reader, writer, tx)
                 .await
                 .expect("Failed to handle connection");
         });

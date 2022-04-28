@@ -1,5 +1,5 @@
 use anyhow::Context;
-use std::{collections::HashMap, net::SocketAddr};
+use std::collections::HashMap;
 use tokio::{
     io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader},
     sync::{mpsc, oneshot},
@@ -9,7 +9,12 @@ use tokio::{
 #[derive(Debug)]
 pub enum Message {
     /// Just some text.
-    Text(String),
+    Text {
+        /// Name field
+        name: String,
+        /// Message Content.
+        message: String,
+    },
 
     /// Request for the current message report.
     Report {
@@ -25,10 +30,10 @@ pub enum Message {
 /// # Termination
 /// In case the `reader` has no more bytes (`read_line` returned `Ok(0)`), terminate the future.
 pub async fn handle_connection<Reader, Writer>(
-    addr: SocketAddr,
+    name: String,
     reader: Reader,
     mut writer: Writer,
-    tx: mpsc::Sender<(Message, SocketAddr)>,
+    tx: mpsc::Sender<Message>,
 ) -> anyhow::Result<()>
 where
     Reader: AsyncRead + Unpin,
@@ -45,7 +50,7 @@ where
             if line.as_str() == "report\r\n" {
                 let (sender, receiver) = oneshot::channel();
                 let request = Message::Report { reply: sender };
-                tx.send((request, addr))
+                tx.send(request)
                     .await
                     .context("Failed to broadcast message from client")?;
                 let report = receiver.await.context("Failed to fetch report")?;
@@ -54,9 +59,12 @@ where
                     .await
                     .context("Failed to forward report to client")?;
             } else {
-                tx.send((Message::Text(line.clone()), addr))
-                    .await
-                    .context("Failed to send text message to server")?;
+                tx.send(Message::Text {
+                    name: name.clone(),
+                    message: line.clone(),
+                })
+                .await
+                .context("Failed to send text message to server")?;
             }
             line.clear();
         }
@@ -69,13 +77,13 @@ where
 ///
 /// # Termination
 /// In case there are no more senders, terminate the future.
-pub async fn collect(mut rx: mpsc::Receiver<(Message, SocketAddr)>) -> anyhow::Result<()> {
-    let mut map: HashMap<SocketAddr, Vec<String>> = HashMap::new();
+pub async fn collect(mut rx: mpsc::Receiver<Message>) -> anyhow::Result<()> {
+    let mut map: HashMap<String, Vec<String>> = HashMap::new();
     loop {
         match rx.recv().await {
-            Some((message, source)) => match message {
-                Message::Text(line) => {
-                    map.entry(source).or_default().push(line);
+            Some(message) => match message {
+                Message::Text { name, message } => {
+                    map.entry(name).or_default().push(message);
                 }
                 Message::Report { reply } => reply
                     .send(format!("{:#?}\n", map))
@@ -95,12 +103,9 @@ mod test {
 
     #[tokio::test]
     async fn collects_messages() {
-        let expected = [(
-            "127.0.0.3:8081".parse().unwrap(),
-            vec!["hello\r\n".to_string()],
-        )]
-        .into_iter()
-        .collect::<HashMap<SocketAddr, Vec<String>>>();
+        let expected = [("test".to_string(), vec!["hello\r\n".to_string()])]
+            .into_iter()
+            .collect::<HashMap<String, Vec<String>>>();
 
         let writer = Mock::new()
             .write(format!("{:#?}\n", expected).as_bytes())
@@ -110,12 +115,7 @@ mod test {
         let (tx, rx) = mpsc::channel(16);
 
         let server = tokio::spawn(collect(rx));
-        let client = tokio::spawn(handle_connection(
-            "127.0.0.3:8081".parse().unwrap(),
-            reader,
-            writer,
-            tx,
-        ));
+        let client = tokio::spawn(handle_connection("test".to_string(), reader, writer, tx));
 
         tokio::join!(client, server).0.unwrap().unwrap();
     }

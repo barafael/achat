@@ -1,9 +1,9 @@
 use achat::chat_with_announce::{self, announce_uptime};
-use achat::{init_console_subscriber, Args};
+use achat::{get_name, init_console_subscriber, Args};
 use anyhow::Context;
 use clap::Parser;
 use std::time::Duration;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::io::BufReader;
 use tokio::{
     net::TcpListener,
     sync::{broadcast, watch},
@@ -38,22 +38,7 @@ async fn main() -> anyhow::Result<()> {
         let rx = tx.subscribe();
         let topic_rx = topic_rx.clone();
 
-        socket
-            .write_all(b"Enter your name: ")
-            .await
-            .context("Failed to ask for name")?;
-
-        let mut name = String::new();
-        socket
-            .read_line(&mut name)
-            .await
-            .context("Failed to receive name")?;
-        if name.ends_with('\n') {
-            name.pop().unwrap();
-        }
-        if name.ends_with('\r') {
-            name.pop().unwrap();
-        }
+        let name = get_name(&mut socket).await.context("Failed to get name")?;
 
         tokio::task::Builder::new()
             .name(name.clone().as_str())
