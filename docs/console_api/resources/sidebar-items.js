@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["resource","Nested message and enum types in `Resource`."]],"struct":[["PollOp","A `PollOp` describes each poll operation that completes within the async application."],["Resource","Static data recorded when a new resource is created."],["ResourceUpdate","A resource state update."],["Stats","Task runtime stats of a resource."]]});

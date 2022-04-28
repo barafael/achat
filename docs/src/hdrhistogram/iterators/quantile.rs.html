@@ -1,0 +1,354 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/rafaelbachmann/.cargo/registry/src/github.com-1ecc6299db9ec823/hdrhistogram-7.5.0/src/iterators/quantile.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>quantile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../hdrhistogram/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../hdrhistogram/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../hdrhistogram/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::core::counter::Counter</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::iterators</span>::{<span class="ident">HistogramIterator</span>, <span class="ident">PickMetadata</span>, <span class="ident">PickyIterator</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Histogram</span>;
+
+<span class="doccomment">/// An iterator that will yield at quantile steps through the histogram&#39;s value range.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Counter</span><span class="op">&gt;</span> {
+    <span class="ident">hist</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="ident">ticks_per_half_distance</span>: <span class="ident">u32</span>,
+    <span class="ident">quantile_to_iterate_to</span>: <span class="ident">f64</span>,
+    <span class="ident">reached_end</span>: <span class="ident">bool</span>,
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Counter</span><span class="op">&gt;</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Construct a new iterator. See `Histogram::iter_quantiles` for details.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">hist</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Histogram</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">ticks_per_half_distance</span>: <span class="ident">u32</span>,
+    ) -&gt; <span class="ident">HistogramIterator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">assert!</span>(
+            <span class="ident">ticks_per_half_distance</span> <span class="op">&gt;</span> <span class="number">0</span>,
+            <span class="string">&quot;Ticks per half distance must be &gt; 0&quot;</span>
+        );
+
+        <span class="ident">HistogramIterator::new</span>(
+            <span class="ident">hist</span>,
+            <span class="ident">Iter</span> {
+                <span class="ident">hist</span>,
+                <span class="ident">ticks_per_half_distance</span>,
+                <span class="ident">quantile_to_iterate_to</span>: <span class="number">0.0</span>,
+                <span class="ident">reached_end</span>: <span class="bool-val">false</span>,
+            },
+        )
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">Counter</span><span class="op">&gt;</span> <span class="ident">PickyIterator</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::float_cmp</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">pick</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="ident">usize</span>, <span class="ident">running_total</span>: <span class="ident">u64</span>, <span class="ident">count_at_index</span>: <span class="ident">T</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PickMetadata</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">count_at_index</span> <span class="op">==</span> <span class="ident">T::zero</span>() {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+
+        <span class="comment">// This calculation, combined with the `quantile * count` in `value_at_quantile`, tends</span>
+        <span class="comment">// to produce a count_at_quantile that is 1 ulp wrong. That&#39;s just the way IEEE754 works.</span>
+        <span class="kw">let</span> <span class="ident">current_quantile</span> <span class="op">=</span> <span class="ident">running_total</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">hist</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="kw">if</span> <span class="ident">current_quantile</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+
+        <span class="comment">// Because there are effectively two quantiles in play (the quantile of the value for the</span>
+        <span class="comment">// bucket we&#39;re at aka &quot;value quantile&quot;, and the quantile we&#39;re iterating to aka &quot;iteration</span>
+        <span class="comment">// quantile&quot;, which may be significantly different, especially in highly non-uniform</span>
+        <span class="comment">// distributions), the behavior around 1.0 is a little tricky.</span>
+        <span class="comment">//</span>
+        <span class="comment">// The desired behavior is that we always iterate until the iteration quantile reaches 1.0,</span>
+        <span class="comment">// but if the value quantile reaches 1.0 (by reaching the last index with a non-zero count)</span>
+        <span class="comment">// before that point, we skip the remaining intermediate iterations in that same index and</span>
+        <span class="comment">// jump straight to iteration quantile 1.0.</span>
+        <span class="comment">// This is effectively a policy decision, but it is consistent with other iterators: they</span>
+        <span class="comment">// don&#39;t just stop when the quantile reaches 1.0 upon first entering the final bucket.</span>
+        <span class="comment">// At the same time, it&#39;s arguably unhelpful to have a bunch of all-but-identical quantile</span>
+        <span class="comment">// ticks, hence skipping the intermediate iterations. (This is also how the Java impl</span>
+        <span class="comment">// behaves.)</span>
+        <span class="comment">//</span>
+        <span class="comment">// Note that it is impossible to have the value quantile lower than the iteration quantile</span>
+        <span class="comment">// since the value quantile incorporates the count for the entire bucket when it&#39;s first</span>
+        <span class="comment">// entered, while the hypothetical fractional count that the iteration quantile would use is</span>
+        <span class="comment">// necessarily less than that.</span>
+        <span class="comment">//</span>
+        <span class="comment">// Cases for ending iteration:</span>
+        <span class="comment">// 1. Iteration quantile reaches 1.0 along with the value quantile reaching 1.0 at the max</span>
+        <span class="comment">//    value index</span>
+        <span class="comment">// 2. Iteration quantile is below 1.0 when the value quantile reaches 1.0 at the max value</span>
+        <span class="comment">//    index</span>
+        <span class="comment">// 3. Same as #1, but not at the max value index because total count has saturated. This</span>
+        <span class="comment">//    means that more() will not be called.</span>
+        <span class="comment">// 4. Same as #2, but not at the max value index because total count has saturated. See #3.</span>
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reached_end</span> {
+            <span class="comment">// #3, #4 part 2: Need to check here, not just in `more()`: when we see quantile 1.0 and</span>
+            <span class="comment">// set `reached_end`, `more()` will not be called (because we haven&#39;t reached the last</span>
+            <span class="comment">// non-zero-count index) so it can&#39;t stop iteration, and we must stop it here.</span>
+            <span class="comment">//</span>
+            <span class="comment">// This will be hit for all remaining non-zero-count indices, then control will proceed</span>
+            <span class="comment">// to `more()`.</span>
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        }
+
+        <span class="comment">// #1: If we reach iteration quantile 1.0 at the same time as value quantile 1.0 (because we</span>
+        <span class="comment">// moved to the final non-zero-count index exactly when the iteration ticked over to 1.0),</span>
+        <span class="comment">// we want to emit a value at that point, but not proceed past that.</span>
+        <span class="comment">// #2, last phase: This could also be the second visit to the max value index in the #2 case</span>
+        <span class="comment">// where `quantile_to_iterate_to` has been set to 1.0.</span>
+        <span class="comment">// #3, #4 last phase: Similar, but iteration proceeded normally up to 1.0 without any</span>
+        <span class="comment">// last-bucket skipping because it wasn&#39;t at the last bucket.</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span> <span class="op">==</span> <span class="number">1.0</span> {
+            <span class="comment">// We want to pick this value but not do the math below because it doesn&#39;t work when</span>
+            <span class="comment">// quantile &gt;= 1.0.</span>
+            <span class="comment">//</span>
+            <span class="comment">// We also want to prevent any further iteration.</span>
+            <span class="self">self</span>.<span class="ident">reached_end</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">PickMetadata::new</span>(<span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="prelude-val">None</span>));
+        }
+
+        <span class="comment">// #2, first phase:</span>
+        <span class="comment">// Value quantile reached 1.0 while the iteration quantile is somewhere below 1.0 (it can be</span>
+        <span class="comment">// arbitrarily close to 0 for lopsided histograms). So, we continue with normal quantile</span>
+        <span class="comment">// tick logic for the first time, and pick up the #2 case in `more()` below.</span>
+
+        <span class="comment">// The choice to maintain fixed-sized &quot;ticks&quot; in each half-distance to 100% [starting from</span>
+        <span class="comment">// 0%], as opposed to a &quot;tick&quot; size that varies with each interval, was made to make the</span>
+        <span class="comment">// steps easily comprehensible and readable to humans. The resulting quantile steps are</span>
+        <span class="comment">// much easier to browse through in a quantile distribution output, for example.</span>
+        <span class="comment">//</span>
+        <span class="comment">// We calculate the number of equal-sized &quot;ticks&quot; that the 0-1 range will be divided by</span>
+        <span class="comment">// at the current scale. The scale is determined by the quantile level we are iterating</span>
+        <span class="comment">// to. The following math determines the tick size for the current scale, and maintain a</span>
+        <span class="comment">// fixed tick size for the remaining &quot;half the distance to 100%&quot; [from either 0% or from</span>
+        <span class="comment">// the previous half-distance]. When that half-distance is crossed, the scale changes and</span>
+        <span class="comment">// the tick size is effectively cut in half.</span>
+        <span class="comment">//</span>
+        <span class="comment">// Calculate the number of times we&#39;ve halved the distance to 100%, This is 1 at 50%, 2 at</span>
+        <span class="comment">// 75%, 3 at 87.5%, etc. 2 ^ num_halvings is the number of slices that will fit into 100%.</span>
+        <span class="comment">// At 50%, num_halvings would be 1, so 2 ^ 1 would yield 2 slices, etc. At any given number</span>
+        <span class="comment">// of slices, the last slice is what we&#39;re going to traverse the first half of. With 1 total</span>
+        <span class="comment">// slice, traverse half to get to 50%. Then traverse half of the last (second) slice to get</span>
+        <span class="comment">// to 75%, etc.</span>
+        <span class="comment">// Minimum of 0 (1.0/1.0 = 1, log 2 of which is 0) so unsigned cast is safe.</span>
+        <span class="comment">// Won&#39;t hit the `inf` case because quantile &lt; 1.0, so this should yield an actual number.</span>
+        <span class="kw">let</span> <span class="ident">num_halvings</span> <span class="op">=</span> (<span class="number">1.0</span> <span class="op">/</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span>)).<span class="ident">log2</span>() <span class="kw">as</span> <span class="ident">u32</span>;
+        <span class="comment">// Calculate the total number of ticks in 0-1 given that half of each slice is tick&#39;d.</span>
+        <span class="comment">// The number of slices is 2 ^ num_halvings, and each slice has two &quot;half distances&quot; to</span>
+        <span class="comment">// tick, so we add an extra power of two to get ticks per whole distance.</span>
+        <span class="comment">// Use u64 math so that there&#39;s less risk of overflow with large numbers of ticks and data</span>
+        <span class="comment">// that ends up needing large numbers of halvings.</span>
+        <span class="kw">let</span> <span class="ident">total_ticks</span> <span class="op">=</span> <span class="ident">u64::from</span>(<span class="self">self</span>.<span class="ident">ticks_per_half_distance</span>)
+            .<span class="ident">checked_mul</span>(
+                <span class="number">1_u64</span>
+                    .<span class="ident">checked_shl</span>(<span class="ident">num_halvings</span> <span class="op">+</span> <span class="number">1</span>)
+                    .<span class="ident">expect</span>(<span class="string">&quot;too many halvings&quot;</span>),
+            )
+            .<span class="ident">expect</span>(<span class="string">&quot;too many total ticks&quot;</span>);
+        <span class="kw">let</span> <span class="ident">increment_size</span> <span class="op">=</span> <span class="number">1.0_f64</span> <span class="op">/</span> <span class="ident">total_ticks</span> <span class="kw">as</span> <span class="ident">f64</span>;
+
+        <span class="kw">let</span> <span class="ident">metadata</span> <span class="op">=</span> <span class="ident">PickMetadata::new</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span>), <span class="prelude-val">None</span>);
+
+        <span class="kw">let</span> <span class="ident">sum</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span> <span class="op">+</span> <span class="ident">increment_size</span>;
+        <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">sum</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span> {
+            <span class="comment">// the iteration has reached the point where the increment is too small to actually</span>
+            <span class="comment">// change an f64 slightly smaller than 1.0, so just short circuit to 1.0.</span>
+            <span class="comment">// This happens easily in case #4, and plausibly in #3: it will iterate up to 1.0</span>
+            <span class="comment">// without any skipping, which will</span>
+            <span class="number">1.0</span>
+        } <span class="kw">else</span> {
+            <span class="ident">sum</span>
+        };
+        <span class="prelude-val">Some</span>(<span class="ident">metadata</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">more</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
+        <span class="comment">// One of the end cases has already declared we&#39;re done.</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reached_end</span> {
+            <span class="kw">return</span> <span class="bool-val">false</span>;
+        }
+
+        <span class="comment">// #2, middle phase: already picked the max-value index once with iteration quantile &lt; 1.0,</span>
+        <span class="comment">// and `more()` is now called (for the first time), so iterate one more time, but jump to</span>
+        <span class="comment">// quantile 1.0 while doing so. We don&#39;t set `reached_end` here because we do want 1 more</span>
+        <span class="comment">// iteration.</span>
+        <span class="self">self</span>.<span class="ident">quantile_to_iterate_to</span> <span class="op">=</span> <span class="number">1.0</span>;
+        <span class="bool-val">true</span>
+    }
+}
+</code></pre></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="hdrhistogram" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (76d770ac2 2022-04-02)" ></div>
+</body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["AdditionError","Errors that can occur when adding another histogram."],["CreationError","Errors that can occur when creating a histogram."],["RecordError","Errors that can occur while recording a value and its associated count."],["SubtractionError","Errors that can occur when subtracting another histogram."]],"struct":[["UsizeTypeTooSmall",""]]});

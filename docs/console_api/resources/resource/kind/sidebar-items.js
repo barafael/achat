@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Kind","Every resource is either a known kind or an other (unknown) kind."],["Known","`Known` collects the kinds of resources that are known in this version of the API."]]});

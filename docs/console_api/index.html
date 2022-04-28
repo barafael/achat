@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="tokio-console API"><meta name="keywords" content="rust, rustlang, rust-lang, console_api"><title>console_api - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
+    <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../console_api/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../console_api/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"><a href="#">Crate console_api</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.2.0</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li></ul></div></section><div id="sidebar-vars" data-name="console_api" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../console_api/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">console_api</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/console_api/lib.rs.html#1-15">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="tokio-console-api"><a href="#tokio-console-api">tokio-console API</a></h2>
+<p>🛰 <a href="https://crates.io/crates/tonic">Tonic</a> bindings for the <a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> <a href="https://developers.google.com/protocol-buffers">protobuf</a> wire format.</p>
+<p><a href="https://crates.io/crates/console-api"><img src="https://img.shields.io/crates/v/console-api.svg" alt="crates.io" /></a>
+<a href="https://docs.rs/console-api"><img src="https://docs.rs/console-api/badge.svg" alt="Documentation" /></a>
+<a href="https://tokio-console.netlify.app/console_api/"><img src="https://img.shields.io/netlify/0e5ffd50-e1fa-416e-b147-a04dab28cfb1?label=docs%20%28main%20branch%29" alt="Documentation (main branch)" /></a>
+<a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licensed" /></a>
+<a href="https://github.com/tokio-rs/console/actions?query=workflow%3ACI"><img src="https://github.com/tokio-rs/console/workflows/CI/badge.svg" alt="Build Status" /></a>
+<a href="https://discord.gg/tokio"><img src="https://img.shields.io/discord/500028886025895936?logo=discord&amp;label=discord&amp;logoColor=white" alt="Discord chat" /></a></p>
+<p><a href="https://tokio.rs">Website</a> | <a href="https://discord.gg/tokio">Chat</a> | <a href="https://docs.rs/console-api">API Documentation</a></p>
+<h3 id="overview"><a href="#overview">Overview</a></h3>
+<p>This crate contains generated <a href="https://developers.google.com/protocol-buffers">protobuf</a> bindings for the <a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> wire
+format. The wire format is used to export diagnostic data from instrumented
+applications to consumers that aggregate and display that data.</p>
+<p><a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> is a debugging and profiling tool for asynchronous Rust
+applications, which collects and displays in-depth diagnostic data on the
+asynchronous tasks, resources, and operations in an application. The console
+system consists of two primary components:</p>
+<ul>
+<li><em>instrumentation</em>, embedded in the application, which collects data from the
+async runtime and exposes it over the console’s wire format</li>
+<li><em>consumers</em>, such as the <a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> command-line application, which
+connect to the instrumented application, recieve telemetry data, and display
+it to the user</li>
+</ul>
+<p>The wire format <a href="https://developers.google.com/protocol-buffers">protobuf</a> bindings in this crate are used by both the
+instrumentation in the <a href="https://crates.io/crates/console-subscriber"><code>console-subscriber</code></a> crate, which emits telemetry in
+this format, and by the clients that consume that telemetry.</p>
+<p>In general, most <a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> users will <em>not</em> depend on this crate
+directly. Applications are typically instrumented using the
+<a href="https://crates.io/crates/console-subscriber"><code>console-subscriber</code></a> crate, which collects data and exports it using
+this wire format; this data can be consumed using the <a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a>
+command-line application. However, the wire format API definition in this crate
+may be useful for anyone implementing other software that also consumes the
+<a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> diagnostic data.</p>
+<h4 id="stability"><a href="#stability">Stability</a></h4>
+<p>⚠️ The protobuf wire format is not currently considered totally
+stable. While we will try to avoid unnecessary protobuf-incompatible changes,
+protobuf compatibility is only guaranteed within SemVer-compatible releases of
+this crate. For example, the protobuf as of <code>console-api</code> v0.2.5 may not be
+backwards-compatible with <code>console-api</code> v0.1.12.</p>
+<h4 id="crate-feature-flags"><a href="#crate-feature-flags">Crate Feature Flags</a></h4>
+<p>This crate provides the following feature flags:</p>
+<ul>
+<li><code>transport</code>: Generate code that is compatible with <a href="https://crates.io/crates/tonic">Tonic</a>’s <a href="https://docs.rs/tonic/latest/tonic/transport/index.html"><code>transport</code>
+module</a> (disabled by default)</li>
+</ul>
+<h3 id="getting-help"><a href="#getting-help">Getting Help</a></h3>
+<p>First, see if the answer to your question can be found in the
+<a href="https://docs.rs/console-api">API documentation</a>. If the answer is not there, there is an active community in
+the <a href="https://discord.gg/tokio">Tokio Discord server</a>. We would be happy to try to answer your
+question. You can also ask your question on <a href="https://github.com/tokio-rs/console/discussions">the discussions page</a>.</p>
+<h3 id="contributing"><a href="#contributing">Contributing</a></h3>
+<p>🎈 Thanks for your help improving the project! We are so happy to have
+you! We have a <a href="https://github.com/tokio-rs/console/blob/main/CONTRIBUTING.md">contributing guide</a> to help you get involved in the Tokio
+console project.</p>
+<h3 id="supported-rust-versions"><a href="#supported-rust-versions">Supported Rust Versions</a></h3>
+<p>The Tokio console is built against the latest stable release. The minimum
+supported version is 1.56. The current Tokio console version is not guaranteed
+to build on Rust versions earlier than the minimum supported version.</p>
+<h3 id="license"><a href="#license">License</a></h3>
+<p>This project is licensed under the <a href="https://github.com/tokio-rs/console/blob/main/LICENSE">MIT license</a>.</p>
+<h4 id="contribution"><a href="#contribution">Contribution</a></h4>
+<p>Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in Tokio by you, shall be licensed as MIT, without any additional
+terms or conditions.</p>
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="async_ops/index.html" title="console_api::async_ops mod">async_ops</a></div><div class="item-right docblock-short"><p>Represents the operations performed by an async runtime.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="field/index.html" title="console_api::field mod">field</a></div><div class="item-right docblock-short"><p>Nested message and enum types in <code>Field</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="instrument/index.html" title="console_api::instrument mod">instrument</a></div><div class="item-right docblock-short"><p>Represents interactions between the console-subscriber and a console client observing it.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="metadata/index.html" title="console_api::metadata mod">metadata</a></div><div class="item-right docblock-short"><p>Nested message and enum types in <code>Metadata</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="register_metadata/index.html" title="console_api::register_metadata mod">register_metadata</a></div><div class="item-right docblock-short"><p>Nested message and enum types in <code>RegisterMetadata</code>.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="resources/index.html" title="console_api::resources mod">resources</a></div><div class="item-right docblock-short"><p>Represents updates to the resources in an async runtime.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="tasks/index.html" title="console_api::tasks mod">tasks</a></div><div class="item-right docblock-short"><p>Represents updates to the tasks in an async runtime.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="trace/index.html" title="console_api::trace mod">trace</a></div><div class="item-right docblock-short"><p>Represents events on the tracing subsystem: thread registration and span activities.</p>
+</div></div></div><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Attribute.html" title="console_api::Attribute struct">Attribute</a></div><div class="item-right docblock-short"><p>State attributes of an entity. These are dependent on the type of the entity.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Field.html" title="console_api::Field struct">Field</a></div><div class="item-right docblock-short"><p>A message representing a key-value pair of data associated with a <code>Span</code></p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Id.html" title="console_api::Id struct">Id</a></div><div class="item-right docblock-short"><p>Unique identifier for each task.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Location.html" title="console_api::Location struct">Location</a></div><div class="item-right docblock-short"><p>A Rust source code location.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.MetaId.html" title="console_api::MetaId struct">MetaId</a></div><div class="item-right docblock-short"><p>Unique identifier for metadata.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Metadata.html" title="console_api::Metadata struct">Metadata</a></div><div class="item-right docblock-short"><p>Metadata associated with a span or event.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.PollStats.html" title="console_api::PollStats struct">PollStats</a></div><div class="item-right docblock-short"><p>Contains stats about objects that can be polled. Currently these can be:</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.RegisterMetadata.html" title="console_api::RegisterMetadata struct">RegisterMetadata</a></div><div class="item-right docblock-short"><p>Any new metadata that was registered since the last update.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Span.html" title="console_api::Span struct">Span</a></div><div class="item-right docblock-short"><p>Represents a period of time in which a program was executing in a particular context.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.SpanId.html" title="console_api::SpanId struct">SpanId</a></div><div class="item-right docblock-short"><p>Unique identifier for spans.</p>
+</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="console_api" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (76d770ac2 2022-04-02)" ></div>
+</body></html>

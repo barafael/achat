@@ -109,6 +109,9 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::{
@@ -142,9 +145,9 @@
         <span class="macro">tokio::select!</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">bytes_read</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;mut</span> <span class="ident">line</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">bytes_read</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
+                    <span class="kw">break</span> <span class="prelude-val">Ok</span>(()); <span class="comment">// EOF detected.</span>
                 }
-                <span class="ident">tx</span>.<span class="ident">send</span>((<span class="ident">line</span>.<span class="ident">clone</span>(), <span class="ident">addr</span>)).<span class="ident">context</span>(<span class="string">&quot;Failed to broadcast message from client&quot;</span>)<span class="question-mark">?</span>;
+                <span class="ident">tx</span>.<span class="ident">send</span>((<span class="macro">format!</span>(<span class="string">&quot;{addr}: {line}&quot;</span>), <span class="ident">addr</span>)).<span class="ident">context</span>(<span class="string">&quot;Failed to broadcast message from client&quot;</span>)<span class="question-mark">?</span>;
             },
             <span class="prelude-val">Ok</span>((<span class="ident">message</span>, <span class="ident">source</span>)) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>() =&gt; {
                 <span class="kw">if</span> <span class="ident">source</span> <span class="op">==</span> <span class="ident">addr</span> {
@@ -183,7 +186,10 @@
         <span class="kw">let</span> (<span class="ident">message</span>, <span class="ident">socket</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             (<span class="ident">message</span>, <span class="ident">socket</span>),
-            (<span class="string">&quot;hello&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;127.0.0.3:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+            (
+                <span class="string">&quot;127.0.0.3:8081: hello&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;127.0.0.3:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()
+            )
         );
 
         <span class="macro">tokio::join!</span>(<span class="ident">handle</span>).<span class="number">0</span>.<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();

@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="tokio-console subscriber"><meta name="keywords" content="rust, rustlang, rust-lang, console_subscriber"><title>console_subscriber - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
+    <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../console_subscriber/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../console_subscriber/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"><a href="#">Crate console_subscriber</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.1.4</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><section><div class="block"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div></section><div id="sidebar-vars" data-name="console_subscriber" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../console_subscriber/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">console_subscriber</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/console_subscriber/lib.rs.html#1-1055">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="tokio-console-subscriber"><a href="#tokio-console-subscriber">tokio-console subscriber</a></h2>
+<p>📡️  A <a href="https://crates.io/crates/tracing-subscriber"><code>tracing-subscriber</code></a> <a href="https://docs.rs/tracing-subscriber/0.3/tracing_subscriber/layer/index.html"><code>Layer</code></a> for collecting
+<a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> telemetry.</p>
+<p><a href="https://crates.io/crates/console-subscriber"><img src="https://img.shields.io/crates/v/console-subscriber.svg" alt="crates.io" /></a>
+<a href="https://docs.rs/console-subscriber"><img src="https://docs.rs/console-subscriber/badge.svg" alt="Documentation" /></a>
+<a href="https://tokio-console.netlify.app/console_subscriber/"><img src="https://img.shields.io/netlify/0e5ffd50-e1fa-416e-b147-a04dab28cfb1?label=docs%20%28main%20branch%29" alt="Documentation (main branch)" /></a>
+<a href="../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT licensed" /></a>
+<a href="https://github.com/tokio-rs/console/actions?query=workflow%3ACI"><img src="https://github.com/tokio-rs/console/workflows/CI/badge.svg" alt="Build Status" /></a>
+<a href="https://discord.gg/tokio"><img src="https://img.shields.io/discord/500028886025895936?logo=discord&amp;label=discord&amp;logoColor=white" alt="Discord chat" /></a></p>
+<p><a href="https://tokio.rs">Website</a> | <a href="https://discord.gg/tokio">Chat</a> | <a href="https://docs.rs/console-subscriber">API Documentation</a></p>
+<h3 id="overview"><a href="#overview">Overview</a></h3>
+<p><a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> is a debugging and profiling tool for asynchronous Rust
+applications, which collects and displays in-depth diagnostic data on the
+asynchronous tasks, resources, and operations in an application. The console
+system consists of two primary components:</p>
+<ul>
+<li><em>instrumentation</em>, embedded in the application, which collects data from the
+async runtime and exposes it over the console’s <a href="https://crates.io/crates/console-api">wire format</a></li>
+<li><em>consumers</em>, such as the <a href="https://github.com/tokio-rs/console"><code>tokio-console</code></a> command-line application, which
+connect to the instrumented application, recieve telemetry data, and display
+it to the user</li>
+</ul>
+<p>This crate implements the instrumentation-side interface using data
+emitted by the async runtime using the <a href="https://crates.io/crates/tracing"><code>tracing</code></a>. It provides a type
+implementing the <a href="https://docs.rs/tracing-subscriber/0.3/tracing_subscriber/layer/index.html"><code>Layer</code></a> trait from <a href="https://crates.io/crates/tracing-subscriber"><code>tracing-subscriber</code></a>, for collecting and
+aggregating the runtime’s <a href="https://crates.io/crates/tracing"><code>tracing</code></a> data, and a gRPC server that exports
+telemetry to clients.</p>
+<h3 id="getting-started"><a href="#getting-started">Getting Started</a></h3>
+<p>To instrument your asynchronous application, you must be using an async runtime
+that supports the <a href="https://crates.io/crates/tracing"><code>tracing</code></a> instrumentation required by the console.
+Currently, the only runtime that implements this instrumentation is <a href="https://tokio.rs">Tokio</a>
+version 1.7.0 and newer.</p>
+<h4 id="enabling-tokio-instrumentation"><a href="#enabling-tokio-instrumentation">Enabling Tokio Instrumentation</a></h4>
+<p>⚠️ Currently, the <a href="https://crates.io/crates/tracing"><code>tracing</code></a> support in the <a href="https://tokio.rs"><code>tokio</code>
+runtime</a> is considered <em>experimental</em>. In order to use
+<code>console-subscriber</code> with Tokio, the following is required:</p>
+<ul>
+<li>
+<p>Tokio’s optional <code>tracing</code> dependency must be enabled. For example:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[dependencies]
+tokio = { version = &quot;1.15&quot;, features = [&quot;full&quot;, &quot;tracing&quot;] }</code></pre></div></li>
+<li>
+<p>The <code>tokio_unstable</code> cfg flag, which enables experimental APIs in Tokio, must
+be enabled. It can be enabled by setting the <code>RUSTFLAGS</code> environment variable
+at build-time:</p>
+<div class="example-wrap"><pre class="language-shell"><code>$ RUSTFLAGS=&quot;--cfg tokio_unstable&quot; cargo build</code></pre></div>
+<p>or, by adding the following to the <code>.cargo/config.toml</code> file in a Cargo workspace:</p>
+<div class="example-wrap"><pre class="language-toml"><code>[build]
+rustflags = [&quot;--cfg&quot;, &quot;tokio_unstable&quot;]</code></pre></div>
+<p>If you’re using a workspace, you should put the <code>.cargo/config.toml</code> file in the root of your workspace.
+Otherwise, put the <code>.cargo/config.toml</code> file in the root directory of your crate.</p>
+<p>Putting <code>.cargo/config.toml</code> files below the workspace or crate root directory may lead to tools like
+Rust-Analyzer or VSCode not using your <code>.cargo/config.toml</code> since they invoke cargo from
+the workspace or crate root and cargo only looks for the <code>.cargo</code> directory in the current &amp; parent directories.
+Cargo ignores configurations in child directories.
+More information about where cargo looks for configuration files can be found
+<a href="https://doc.rust-lang.org/cargo/reference/config.html">here</a>.</p>
+<p>Missing this configuration file during compilation will cause tokio-console to not work, and alternating
+between building with and without this configuration file included will cause
+full rebuilds of your project.</p>
+</li>
+<li>
+<p>The <code>tokio</code> and <code>runtime</code> <a href="https://docs.rs/tracing/latest/tracing/struct.Metadata.html"><code>tracing</code> targets</a> must be enabled at the <a href="https://docs.rs/tracing/latest/tracing/struct.Level.html#associatedconstant.TRACE"><code>TRACE</code>
+level</a>.</p>
+<ul>
+<li>
+<p>If you’re using the <a href="https:/docs.rs/console-subscriber/latest/console_subscriber/fn.init.html"><code>console_subscriber::init()</code></a> or
+<a href="https:/docs.rs/console-subscriber/latest/console_subscriber/struct.builder.html"><code>console_subscriber::Builder</code></a> APIs, these targets are enabled
+automatically.</p>
+</li>
+<li>
+<p>If you are manually configuring the <code>tracing</code> subscriber using the
+<a href="https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html"><code>EnvFilter</code></a> or <a href="https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/targets/struct.Targets.html"><code>Targets</code></a> filters from <a href="https://crates.io/crates/tracing-subscriber"><code>tracing-subscriber</code></a>, add
+<code>&quot;tokio=trace,runtime=trace&quot;</code> to your filter configuration.</p>
+</li>
+<li>
+<p>Also, ensure you have not enabled any of the <a href="https://docs.rs/tracing/latest/tracing/level_filters/index.html#compile-time-filters">compile time filter 
+features</a> in your <code>Cargo.toml</code>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="required-tokio-versions"><a href="#required-tokio-versions">Required Tokio Versions</a></h5>
+<p>Because instrumentation for different aspects of the runtime is being added to
+Tokio over time, the latest Tokio release is generally <em>recommended</em> to access all of
+the console’s functionality. However, it should generally be compatible with
+earlier Tokio versions, although some information may not be available. A
+minimum version of <a href="https://github.com/tokio-rs/tokio/releases/tag/tokio-1.0.0">Tokio v1.0.0</a> or later is required to use the console’s
+task instrumentation. </p>
+<p>Other instrumentation is added in later Tokio releases:</p>
+<ul>
+<li>
+<p><a href="https://github.com/tokio-rs/tokio/releases/tag/tokio-1.7.0">Tokio v1.7.0</a> or later is required to record task waker instrumentation (such
+as waker counts, clones, drops, et cetera).</p>
+</li>
+<li>
+<p><a href="https://github.com/tokio-rs/tokio/releases/tag/tokio-1.12.0">Tokio v1.12.0</a> or later is required to record tasks created by the
+<a href="https://docs.rs/tokio/1/tokio/runtime/struct.Runtime.html#method.block_on"><code>Runtime::block_on</code></a> and <a href="https://docs.rs/tokio/1/tokio/runtime/struct.Handle.html#method.block_on"><code>Handle::block_on</code></a> methods.</p>
+</li>
+<li>
+<p><a href="https://github.com/tokio-rs/tokio/releases/tag/tokio-1.13.0">Tokio v1.13.0</a> or later is required to track <a href="https://docs.rs/tokio/1/tokio/time/index.html"><code>tokio::time</code></a> resources, such
+as <code>sleep</code> and <code>Interval</code>.</p>
+</li>
+<li>
+<p><a href="https://github.com/tokio-rs/tokio/releases/tag/tokio-1.13.0">Tokio v1.15.0</a> or later is required to track <a href="https://docs.rs/tokio/1/tokio/sync/index.html"><code>tokio::sync</code></a> resources, such
+as <code>Mutex</code>es, <code>RwLock</code>s, <code>Semaphore</code>s, <code>oneshot</code> channels, <code>mpsc</code> channels, et
+cetera. </p>
+</li>
+</ul>
+<h4 id="adding-the-console-subscriber"><a href="#adding-the-console-subscriber">Adding the Console Subscriber</a></h4>
+<p>If the runtime emits compatible <code>tracing</code> events, enabling the console is as
+simple as adding the following line to your <code>main</code> function:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="ident">console_subscriber::init</span>();</code></pre></div>
+<p>This sets the <a href="https://docs.rs/tracing/latest/tracing/#in-executables">default <code>tracing</code> subscriber</a> to serve console telemetry
+(as well as logging to stdout based on the <code>RUST_LOG</code> environment variable). The
+console subscriber’s behavior can be configured via a set of
+<a href="https://docs.rs/console-subscriber/latest/console_subscriber/struct.Builder.html#method.with_default_env">environment variables</a>.</p>
+<p>For programmatic configuration, a <a href="https:/docs.rs/console-subscriber/latest/console_subscriber/struct.builder.html">builder interface</a> is also provided:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+
+<span class="ident">console_subscriber::ConsoleLayer::builder</span>()
+    <span class="comment">// set how long the console will retain data from completed tasks</span>
+    .<span class="ident">retention</span>(<span class="ident">Duration::from_secs</span>(<span class="number">60</span>))
+    <span class="comment">// set the address the server is bound to</span>
+    .<span class="ident">server_addr</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="number">5555</span>))
+    <span class="comment">// ... other configurations ...</span>
+    .<span class="ident">init</span>();</code></pre></div>
+<p>The layer provided by this crate can also be combined with other <a href="https://docs.rs/tracing-subscriber/0.3/tracing_subscriber/layer/index.html"><code>Layer</code></a>s from
+other crates:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">tracing_subscriber::prelude</span>::<span class="kw-2">*</span>;
+
+<span class="comment">// spawn the console server in the background,</span>
+<span class="comment">// returning a `Layer`:</span>
+<span class="kw">let</span> <span class="ident">console_layer</span> <span class="op">=</span> <span class="ident">console_subscriber::spawn</span>();
+
+<span class="comment">// build a `Subscriber` by combining layers with a</span>
+<span class="comment">// `tracing_subscriber::Registry`:</span>
+<span class="ident">tracing_subscriber::registry</span>()
+    <span class="comment">// add the console layer to the subscriber</span>
+    .<span class="ident">with</span>(<span class="ident">console_layer</span>)
+    <span class="comment">// add other layers...</span>
+    .<span class="ident">with</span>(<span class="ident">tracing_subscriber::fmt::layer</span>())
+ <span class="comment">// .with(...)</span>
+    .<span class="ident">init</span>();</code></pre></div>
+<h4 id="crate-feature-flags"><a href="#crate-feature-flags">Crate Feature Flags</a></h4>
+<p>This crate provides the following feature flags and optional dependencies:</p>
+<ul>
+<li><a href="https://crates.io/crates/parking_lot"><code>parking_lot</code></a>: Use the <a href="https://crates.io/crates/parking_lot"><code>parking_lot</code></a> crate’s locks, rather than <code>std::sync</code>.
+Using <a href="https://crates.io/crates/parking_lot"><code>parking_lot</code></a> may result in improved performance, especially in highly
+concurrent applications. Disabled by default.</li>
+</ul>
+<h3 id="getting-help"><a href="#getting-help">Getting Help</a></h3>
+<p>First, see if the answer to your question can be found in the
+<a href="https://docs.rs/console-subscriber">API documentation</a>. If the answer is not there, there is an active community in
+the <a href="https://discord.gg/tokio">Tokio Discord server</a>. We would be happy to try to answer your
+question. You can also ask your question on <a href="https://github.com/tokio-rs/console/discussions">the discussions page</a>.</p>
+<h3 id="contributing"><a href="#contributing">Contributing</a></h3>
+<p>🎈 Thanks for your help improving the project! We are so happy to have
+you! We have a <a href="https://github.com/tokio-rs/console/blob/main/CONTRIBUTING.md">contributing guide</a> to help you get involved in the Tokio
+console project.</p>
+<h3 id="supported-rust-versions"><a href="#supported-rust-versions">Supported Rust Versions</a></h3>
+<p>The Tokio console is built against the latest stable release. The minimum
+supported version is 1.56. The current Tokio console version is not guaranteed
+to build on Rust versions earlier than the minimum supported version.</p>
+<h3 id="license"><a href="#license">License</a></h3>
+<p>This project is licensed under the <a href="https://github.com/tokio-rs/console/blob/main/LICENSE">MIT license</a>.</p>
+<h4 id="contribution"><a href="#contribution">Contribution</a></h4>
+<p>Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in Tokio by you, shall be licensed as MIT, without any additional
+terms or conditions.</p>
+</div></details><h2 id="structs" class="small-section-header"><a href="#structs">Structs</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Builder.html" title="console_subscriber::Builder struct">Builder</a></div><div class="item-right docblock-short"><p>Builder for configuring <a href="struct.ConsoleLayer.html" title="ConsoleLayer"><code>ConsoleLayer</code></a>s.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.ConsoleLayer.html" title="console_subscriber::ConsoleLayer struct">ConsoleLayer</a></div><div class="item-right docblock-short"><p>A <a href="struct.ConsoleLayer.html" title="ConsoleLayer"><code>ConsoleLayer</code></a> is a <a href="../tracing_subscriber/layer/trait.Layer.html" title="tracing_subscriber::Layer"><code>tracing_subscriber::Layer</code></a> that records <a href="https://docs.rs/tracing"><code>tracing</code></a>
+spans and events emitted by the async runtime.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Server.html" title="console_subscriber::Server struct">Server</a></div><div class="item-right docblock-short"><p>A gRPC <a href="struct.Server.html" title="Server"><code>Server</code></a> that implements the <a href="https://docs.rs/console-api"><code>tokio-console</code> wire format</a>.</p>
+</div></div></div><h2 id="functions" class="small-section-header"><a href="#functions">Functions</a></h2>
+<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.init.html" title="console_subscriber::init fn">init</a></div><div class="item-right docblock-short"><p>Initializes the console <a href="https://docs.rs/tracing/latest/tracing/trait.Subscriber.html">tracing <code>Subscriber</code></a> and starts the console
+subscriber <a href="struct.Server.html"><code>Server</code></a> on its own background thread.</p>
+</div></div><div class="item-row"><div class="item-left module-item"><a class="fn" href="fn.spawn.html" title="console_subscriber::spawn fn">spawn</a></div><div class="item-right docblock-short"><p>Returns a new <code>tracing_subscriber</code> <a href="https://docs.rs/tracing-subscriber/latest/tracing_subscriber/layer/trait.Layer.html"><code>Layer</code></a> configured with a <a href="struct.ConsoleLayer.html" title="ConsoleLayer"><code>ConsoleLayer</code></a>
+and a <a href="https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/targets/struct.Targets.html">filter</a> that enables the spans and events required by the console.</p>
+</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="console_subscriber" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (76d770ac2 2022-04-02)" ></div>
+</body></html>

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["extractor_middleware","Convert an extractor into a middleware."]],"struct":[["ExtractorMiddleware","Middleware that runs an extractor and discards the value."],["ExtractorMiddlewareLayer","`Layer` that applies [`FromExtractor`] that runs an extractor and discards the value."],["ResponseFuture","Response future for [`FromExtractor`]."]]});

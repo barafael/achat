@@ -78,6 +78,12 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">std::marker::Unpin</span>;
 <span class="kw">use</span> <span class="ident">tokio::io</span>::{<span class="ident">AsyncBufReadExt</span>, <span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">AsyncWriteExt</span>, <span class="ident">BufReader</span>};
@@ -86,6 +92,9 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Termination</span>
 <span class="doccomment">/// When EOF is found on the reader, terminate the future.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">/// Returns an error if forwarding failed.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_connection</span><span class="op">&lt;</span><span class="ident">Reader</span>, <span class="ident">Writer</span><span class="op">&gt;</span>(
     <span class="kw-2">mut</span> <span class="ident">reader</span>: <span class="ident">Reader</span>,
     <span class="kw-2">mut</span> <span class="ident">writer</span>: <span class="ident">Writer</span>,
@@ -100,10 +109,13 @@
         .<span class="ident">context</span>(<span class="string">&quot;Forwarding reader to writer failed&quot;</span>)
 }
 
-<span class="doccomment">/// Manually loop, recv and send on reader and writer.</span>
+<span class="doccomment">/// Manually loop, recv and send on `reader` and `writer`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Termination</span>
 <span class="doccomment">/// In case the `reader` has no more bytes (`read_line` returned `Ok(0)`), terminate the future.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Errors</span>
+<span class="doccomment">/// Returns an error if something goes wrong while reading or writing.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_connection_manually</span><span class="op">&lt;</span><span class="ident">Reader</span>, <span class="ident">Writer</span><span class="op">&gt;</span>(
     <span class="ident">reader</span>: <span class="ident">Reader</span>,
     <span class="kw-2">mut</span> <span class="ident">writer</span>: <span class="ident">Writer</span>,
@@ -147,7 +159,7 @@
     }
 
     <span class="attribute">#[<span class="ident">tokio::test</span>]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">echo_works_manually</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">manual_echo_works</span>() {
         <span class="kw">let</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">Mock::new</span>().<span class="ident">write</span>(<span class="string">b&quot;hello&quot;</span>).<span class="ident">build</span>();
         <span class="kw">let</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">Mock::new</span>().<span class="ident">read</span>(<span class="string">b&quot;hello&quot;</span>).<span class="ident">build</span>();
         <span class="macro">assert!</span>(<span class="ident">handle_connection_manually</span>(<span class="ident">reader</span>, <span class="ident">writer</span>).<span class="kw">await</span>.<span class="ident">is_ok</span>());

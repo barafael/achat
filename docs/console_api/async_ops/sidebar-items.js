@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AsyncOp","An async operation."],["AsyncOpUpdate","An `AsyncOp` state update. "],["Stats","Statistics associated with a given async operation."]]});

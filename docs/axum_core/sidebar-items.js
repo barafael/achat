@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["body","HTTP body utilities."],["extract","Types and traits for extracting data from requests."],["response","Types and traits for generating responses."]],"struct":[["Error","Errors that can happen when using axum."]],"type":[["BoxError","Alias for a type-erased error type."]]});
