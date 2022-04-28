@@ -1,8 +1,8 @@
-use achat::{chat, init_console_subscriber, Args};
+use achat::{chat, get_name, init_console_subscriber, Args};
 use anyhow::Context;
 use clap::Parser;
-use tokio::io::{AsyncBufReadExt, BufReader};
-use tokio::{io::AsyncWriteExt, net::TcpListener, sync::broadcast};
+use tokio::io::BufReader;
+use tokio::{net::TcpListener, sync::broadcast};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -29,22 +29,7 @@ async fn main() -> anyhow::Result<()> {
         let tx = tx.clone();
         let rx = tx.subscribe();
 
-        socket
-            .write_all(b"Enter your name: ")
-            .await
-            .context("Failed to ask for name")?;
-
-        let mut name = String::new();
-        socket
-            .read_line(&mut name)
-            .await
-            .context("Failed to receive name")?;
-        if name.ends_with('\n') {
-            name.pop().unwrap();
-        }
-        if name.ends_with('\r') {
-            name.pop().unwrap();
-        }
+        let name = get_name(&mut socket).await.context("Failed to get name")?;
 
         tokio::task::Builder::new()
             .name(name.clone().as_str())
