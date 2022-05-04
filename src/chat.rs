@@ -4,6 +4,7 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader},
     sync::broadcast,
 };
+use tokio_util::sync::CancellationToken;
 
 /// Monitor the `reader` and the `rx` for messages.
 /// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].
@@ -19,6 +20,7 @@ pub async fn handle_connection<Reader, Writer>(
     mut writer: Writer,
     tx: broadcast::Sender<(String, SocketAddr)>,
     mut rx: broadcast::Receiver<(String, SocketAddr)>,
+    token: CancellationToken,
 ) -> anyhow::Result<()>
 where
     Reader: AsyncRead + Unpin,
@@ -33,8 +35,11 @@ where
                 if bytes_read == 0 {
                     break Ok::<(), anyhow::Error>(()); // EOF detected.
                 }
+                if line == "call it a day" || line == "call it a day\r\n" {
+                    token.cancel();
+                }
                 if line == "quit" || line == "quit\r\n" {
-                    break Ok::<(), anyhow::Error>(());
+                    break Ok(());
                 }
                 tx.send((format!("{addr}: {line}"), addr)).context("Failed to broadcast message")?;
             },
@@ -44,11 +49,20 @@ where
                 }
                 writer.write_all(message.as_bytes()).await.context("Failed to forward message")?;
             }
+            _ = token.cancelled() => {
+                break Ok(());
+            },
             else => {
                 break Ok(());
             }
         }
     }
+    .context("Client failed to handle messages")?;
+    // Flush data in writer.
+    writer
+        .shutdown()
+        .await
+        .context("Unable to shut down client writer")
 }
 
 #[cfg(test)]
@@ -64,12 +78,15 @@ mod test {
 
         let (tx, mut rx) = broadcast::channel(16);
 
+        let token = CancellationToken::new();
+
         let handle = tokio::spawn(handle_connection(
             "127.0.0.3:8081".parse().unwrap(),
             reader,
             writer,
             tx.clone(),
             tx.subscribe(),
+            token,
         ));
 
         let (message, socket) = rx.recv().await.unwrap();
@@ -93,12 +110,15 @@ mod test {
 
         let (tx, _rx) = broadcast::channel(1);
 
+        let token = CancellationToken::new();
+
         let handle = tokio::spawn(handle_connection(
             "127.0.0.3:8081".parse().unwrap(),
             reader,
             writer,
             tx.clone(),
             tx.subscribe(),
+            token,
         ));
 
         tx.send((

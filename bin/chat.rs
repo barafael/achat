@@ -1,7 +1,8 @@
 use achat::{chat, init_console_subscriber, Args};
-use anyhow::Context;
+use anyhow::{Context, Ok};
 use clap::Parser;
 use tokio::{net::TcpListener, sync::broadcast};
+use tokio_util::sync::CancellationToken;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -17,20 +18,36 @@ async fn main() -> anyhow::Result<()> {
 
     let (tx, _rx) = broadcast::channel(16);
 
+    let mut handles = Vec::new();
+
+    let token = CancellationToken::new();
     loop {
-        let (mut socket, addr) = listener
-            .accept()
-            .await
-            .context("Failed to accept on socket")?;
+        let token = token.clone();
+        tokio::select! {
+            _ = token.cancelled() => {
+                break Ok(());
+            },
+            listen = listener.accept() => {
+                let (mut socket, addr) = listen.context("Failed to accept on socket")?;
+                let tx = tx.clone();
+                let rx = tx.subscribe();
 
-        let tx = tx.clone();
-        let rx = tx.subscribe();
-
-        tokio::spawn(async move {
-            let (reader, writer) = socket.split();
-            chat::handle_connection(addr, reader, writer, tx, rx)
-                .await
-                .expect("Failed to handle connection");
-        });
+                let h = tokio::spawn(async move {
+                    let (reader, writer) = socket.split();
+                    chat::handle_connection(addr, reader, writer, tx, rx, token.clone())
+                        .await
+                        .context("Failed to handle connection")?;
+                    Ok(())
+                });
+                handles.push(h);
+            }
+        };
     }
+    .context("Failed to run the accept loop")?;
+    futures::future::try_join_all(handles)
+        .await
+        .context("Unable to join client tasks")?
+        .into_iter()
+        .collect::<Result<(), _>>()
+        .context("Error in client task")
 }
