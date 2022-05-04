@@ -12,8 +12,8 @@ use tokio::{
 /// When the content of `topic_rx` changed, fetch it, then format and forward it on `writer`.
 ///
 /// # Termination
-/// If EOF is signalled on `reader` by `Ok(0)`, terminate the future.
-/// If an error or `None` is encountered, terminate the future.
+/// If an error or `None` is encountered, the future terminates.
+/// If EOF is signalled on `reader` by `Ok(0)`, the future terminates.
 pub async fn handle_connection<Reader, Writer>(
     addr: SocketAddr,
     reader: Reader,

@@ -23,6 +23,10 @@ path = "bin/collector.rs"
 name = "chat_with_announce"
 path = "bin/chat_with_announce.rs"
 
+[[bin]]
+name = "chat_with_cancel"
+path = "bin/chat_with_cancel.rs"
+
 [dev-dependencies]
 tokio-test = "0.4.2"
 

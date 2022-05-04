@@ -1,4 +1,4 @@
-use achat::{chat, init_console_subscriber, Args};
+use achat::{chat_with_cancel, init_console_subscriber, Args};
 use anyhow::{Context, Ok};
 use clap::Parser;
 use tokio::{net::TcpListener, sync::broadcast};
@@ -34,7 +34,7 @@ async fn main() -> anyhow::Result<()> {
 
                 let h = tokio::spawn(async move {
                     let (reader, writer) = socket.split();
-                    chat::handle_connection(addr, reader, writer, tx, rx)
+                    chat_with_cancel::handle_connection(addr, reader, writer, tx, rx, token.clone())
                         .await
                         .context("Failed to handle connection")?;
                     Ok(())
