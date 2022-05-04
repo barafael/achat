@@ -112,12 +112,36 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::{
     <span class="ident">io</span>::{<span class="ident">AsyncBufReadExt</span>, <span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">AsyncWriteExt</span>, <span class="ident">BufReader</span>},
     <span class="ident">sync::broadcast</span>,
 };
+<span class="kw">use</span> <span class="ident">tokio_util::sync::CancellationToken</span>;
 
 <span class="doccomment">/// Monitor the `reader` and the `rx` for messages.</span>
 <span class="doccomment">/// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].</span>
@@ -133,6 +157,7 @@
     <span class="kw-2">mut</span> <span class="ident">writer</span>: <span class="ident">Writer</span>,
     <span class="ident">tx</span>: <span class="ident">broadcast::Sender</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">SocketAddr</span>)<span class="op">&gt;</span>,
     <span class="kw-2">mut</span> <span class="ident">rx</span>: <span class="ident">broadcast::Receiver</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">SocketAddr</span>)<span class="op">&gt;</span>,
+    <span class="ident">token</span>: <span class="ident">CancellationToken</span>,
 ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">Reader</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">Unpin</span>,
@@ -145,21 +170,36 @@
         <span class="macro">tokio::select!</span> {
             <span class="prelude-val">Ok</span>(<span class="ident">bytes_read</span>) <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;mut</span> <span class="ident">line</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">bytes_read</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="kw">break</span> <span class="prelude-val">Ok</span>(()); <span class="comment">// EOF detected.</span>
+                    <span class="kw">break</span> <span class="prelude-val">Ok</span>::<span class="op">&lt;</span>(), <span class="ident">anyhow::Error</span><span class="op">&gt;</span>(()); <span class="comment">// EOF detected.</span>
                 }
-                <span class="ident">tx</span>.<span class="ident">send</span>((<span class="macro">format!</span>(<span class="string">&quot;{addr}: {line}&quot;</span>), <span class="ident">addr</span>)).<span class="ident">context</span>(<span class="string">&quot;Failed to broadcast message from client&quot;</span>)<span class="question-mark">?</span>;
+                <span class="kw">if</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;call it a day&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;call it a day\r\n&quot;</span> {
+                    <span class="ident">token</span>.<span class="ident">cancel</span>();
+                }
+                <span class="kw">if</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;quit&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;quit\r\n&quot;</span> {
+                    <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
+                }
+                <span class="ident">tx</span>.<span class="ident">send</span>((<span class="macro">format!</span>(<span class="string">&quot;{addr}: {line}&quot;</span>), <span class="ident">addr</span>)).<span class="ident">context</span>(<span class="string">&quot;Failed to broadcast message&quot;</span>)<span class="question-mark">?</span>;
             },
             <span class="prelude-val">Ok</span>((<span class="ident">message</span>, <span class="ident">source</span>)) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>() =&gt; {
                 <span class="kw">if</span> <span class="ident">source</span> <span class="op">==</span> <span class="ident">addr</span> {
                     <span class="kw">continue</span>;
                 }
-                <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">message</span>.<span class="ident">as_bytes</span>()).<span class="kw">await</span>.<span class="ident">context</span>(<span class="string">&quot;Failed to write message to client&quot;</span>)<span class="question-mark">?</span>;
+                <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">message</span>.<span class="ident">as_bytes</span>()).<span class="kw">await</span>.<span class="ident">context</span>(<span class="string">&quot;Failed to forward message&quot;</span>)<span class="question-mark">?</span>;
             }
+            <span class="kw">_</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">cancelled</span>() =&gt; {
+                <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
+            },
             <span class="kw">else</span> =&gt; {
                 <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
             }
         }
     }
+    .<span class="ident">context</span>(<span class="string">&quot;Client failed to handle messages&quot;</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Flush data in writer.</span>
+    <span class="ident">writer</span>
+        .<span class="ident">shutdown</span>()
+        .<span class="kw">await</span>
+        .<span class="ident">context</span>(<span class="string">&quot;Unable to shut down client writer&quot;</span>)
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -175,12 +215,15 @@
 
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">16</span>);
 
+        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">CancellationToken::new</span>();
+
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="ident">handle_connection</span>(
             <span class="string">&quot;127.0.0.3:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
             <span class="ident">reader</span>,
             <span class="ident">writer</span>,
             <span class="ident">tx</span>.<span class="ident">clone</span>(),
             <span class="ident">tx</span>.<span class="ident">subscribe</span>(),
+            <span class="ident">token</span>,
         ));
 
         <span class="kw">let</span> (<span class="ident">message</span>, <span class="ident">socket</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -204,12 +247,15 @@
 
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">1</span>);
 
+        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">CancellationToken::new</span>();
+
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="ident">handle_connection</span>(
             <span class="string">&quot;127.0.0.3:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
             <span class="ident">reader</span>,
             <span class="ident">writer</span>,
             <span class="ident">tx</span>.<span class="ident">clone</span>(),
             <span class="ident">tx</span>.<span class="ident">subscribe</span>(),
+            <span class="ident">token</span>,
         ));
 
         <span class="ident">tx</span>.<span class="ident">send</span>((
