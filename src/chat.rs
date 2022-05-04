@@ -31,15 +31,18 @@ where
         tokio::select! {
             Ok(bytes_read) = reader.read_line(&mut line) => {
                 if bytes_read == 0 {
-                    break Ok(()); // EOF detected.
+                    break Ok::<(), anyhow::Error>(()); // EOF detected.
                 }
-                tx.send((format!("{addr}: {line}"), addr)).context("Failed to broadcast message from client")?;
+                if line == "quit" || line == "quit\r\n" {
+                    break Ok::<(), anyhow::Error>(());
+                }
+                tx.send((format!("{addr}: {line}"), addr)).context("Failed to broadcast message")?;
             },
             Ok((message, source)) = rx.recv() => {
                 if source == addr {
                     continue;
                 }
-                writer.write_all(message.as_bytes()).await.context("Failed to write message to client")?;
+                writer.write_all(message.as_bytes()).await.context("Failed to forward message")?;
             }
             else => {
                 break Ok(());
