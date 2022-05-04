@@ -15,3 +15,7 @@ TCP clients connect to the server. The server collects each message they send an
 # chat_with_announce
 TCP clients connect to the server. The server collects each message they send and broadcasts it to all others.
 In a regular interval, the server announces the uptime to everyone.
+
+# chat_with_cancel
+TCP clients connect to the server. The server collects each message they send and broadcasts it to all others.
+The entire application can be terminated with a specific line written to the client.
