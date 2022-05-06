@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Event","Server-sent event"],["KeepAlive","Configure the interval between keep-alive messages, the content of each message, and the associated stream."],["Sse","An SSE response"]]});

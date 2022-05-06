@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["task","Nested message and enum types in `Task`."]],"struct":[["Stats","Task performance statistics."],["Task","Data recorded when a new task is spawned."],["TaskDetails","A task details update"],["TaskUpdate","A task state update."]]});

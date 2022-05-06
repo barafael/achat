@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["InstrumentClient","`InstrumentServer<T>` implements `Instrument` as a service."]]});

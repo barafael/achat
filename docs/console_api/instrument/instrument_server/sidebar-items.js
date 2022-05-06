@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["InstrumentServer","`InstrumentServer<T>` implements `Instrument` as a service."]],"trait":[["Instrument","Generated trait containing gRPC methods that should be implemented for use with InstrumentServer."]]});

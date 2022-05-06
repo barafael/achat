@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/chat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/chat_with_cancel.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>chat_with_cancel.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
     <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../achat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"></h2>
     </nav>
@@ -122,12 +122,29 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">std::net::SocketAddr</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::{
     <span class="ident">io</span>::{<span class="ident">AsyncBufReadExt</span>, <span class="ident">AsyncRead</span>, <span class="ident">AsyncWrite</span>, <span class="ident">AsyncWriteExt</span>, <span class="ident">BufReader</span>},
     <span class="ident">sync::broadcast</span>,
 };
+<span class="kw">use</span> <span class="ident">tokio_util::sync::CancellationToken</span>;
 
 <span class="doccomment">/// Monitor the `reader` and the `rx` for messages.</span>
 <span class="doccomment">/// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].</span>
@@ -138,12 +155,15 @@
 <span class="doccomment">/// If an error or `None` is encountered, the future terminates.</span>
 <span class="doccomment">/// If EOF is signalled on `reader` by `Ok(0)`, the future terminates.</span>
 <span class="doccomment">/// If the text read from `reader` is `quit` or `quit\r\n`, the future terminates.</span>
+<span class="doccomment">/// If the text read from `reader` is `call it a day` or `call it a day\r\n`, the [`tokio_util::sync::CancellationToken`] is cancelled.</span>
+<span class="doccomment">/// If the `token` is cancelled somewhere else, the future terminates.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_connection</span><span class="op">&lt;</span><span class="ident">Reader</span>, <span class="ident">Writer</span><span class="op">&gt;</span>(
     <span class="ident">addr</span>: <span class="ident">SocketAddr</span>,
     <span class="ident">reader</span>: <span class="ident">Reader</span>,
     <span class="kw-2">mut</span> <span class="ident">writer</span>: <span class="ident">Writer</span>,
     <span class="ident">tx</span>: <span class="ident">broadcast::Sender</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">SocketAddr</span>)<span class="op">&gt;</span>,
     <span class="kw-2">mut</span> <span class="ident">rx</span>: <span class="ident">broadcast::Receiver</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">SocketAddr</span>)<span class="op">&gt;</span>,
+    <span class="ident">token</span>: <span class="ident">CancellationToken</span>,
 ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>
 <span class="kw">where</span>
     <span class="ident">Reader</span>: <span class="ident">AsyncRead</span> <span class="op">+</span> <span class="ident">Unpin</span>,
@@ -158,6 +178,9 @@
                 <span class="kw">if</span> <span class="ident">bytes_read</span> <span class="op">==</span> <span class="number">0</span> {
                     <span class="kw">break</span> <span class="prelude-val">Ok</span>::<span class="op">&lt;</span>(), <span class="ident">anyhow::Error</span><span class="op">&gt;</span>(()); <span class="comment">// EOF detected.</span>
                 }
+                <span class="kw">if</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;call it a day&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;call it a day\r\n&quot;</span> {
+                    <span class="ident">token</span>.<span class="ident">cancel</span>();
+                }
                 <span class="kw">if</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;quit&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;quit\r\n&quot;</span> {
                     <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
                 }
@@ -169,6 +192,9 @@
                 }
                 <span class="ident">writer</span>.<span class="ident">write_all</span>(<span class="ident">message</span>.<span class="ident">as_bytes</span>()).<span class="kw">await</span>.<span class="ident">context</span>(<span class="string">&quot;Failed to forward message&quot;</span>)<span class="question-mark">?</span>;
             }
+            <span class="kw">_</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">cancelled</span>() =&gt; {
+                <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
+            },
             <span class="kw">else</span> =&gt; {
                 <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
             }
@@ -195,12 +221,15 @@
 
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">16</span>);
 
+        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">CancellationToken::new</span>();
+
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="ident">handle_connection</span>(
             <span class="string">&quot;127.0.0.3:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
             <span class="ident">reader</span>,
             <span class="ident">writer</span>,
             <span class="ident">tx</span>.<span class="ident">clone</span>(),
             <span class="ident">tx</span>.<span class="ident">subscribe</span>(),
+            <span class="ident">token</span>,
         ));
 
         <span class="kw">let</span> (<span class="ident">message</span>, <span class="ident">socket</span>) <span class="op">=</span> <span class="ident">rx</span>.<span class="ident">recv</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -224,12 +253,15 @@
 
         <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">1</span>);
 
+        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">CancellationToken::new</span>();
+
         <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="ident">handle_connection</span>(
             <span class="string">&quot;127.0.0.3:8081&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
             <span class="ident">reader</span>,
             <span class="ident">writer</span>,
             <span class="ident">tx</span>.<span class="ident">clone</span>(),
             <span class="ident">tx</span>.<span class="ident">subscribe</span>(),
+            <span class="ident">token</span>,
         ));
 
         <span class="ident">tx</span>.<span class="ident">send</span>((

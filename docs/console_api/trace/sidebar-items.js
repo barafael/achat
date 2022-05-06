@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["trace_client","Generated client implementations."],["trace_event","Nested message and enum types in `TraceEvent`."],["trace_server","Generated server implementations."]],"struct":[["TraceEvent","A trace event"],["WatchRequest","Start watching trace events with the provided filter."]]});

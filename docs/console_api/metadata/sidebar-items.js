@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Kind","Indicates whether metadata is associated with a span or with an event."],["Level","Describes the level of verbosity of a span or event."]]});

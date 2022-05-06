@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Iter","An iterator that will yield every bin."]]});

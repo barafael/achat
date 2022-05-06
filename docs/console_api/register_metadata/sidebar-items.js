@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["NewMetadata","One metadata element registered since the last update."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["TraceClient","Allows observers to stream trace events for a given `WatchRequest` filter."]]});

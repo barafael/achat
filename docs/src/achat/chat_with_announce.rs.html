@@ -213,8 +213,8 @@
 <span class="doccomment">/// When the content of `topic_rx` changed, fetch it, then format and forward it on `writer`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Termination</span>
-<span class="doccomment">/// If EOF is signalled on `reader` by `Ok(0)`, terminate the future.</span>
-<span class="doccomment">/// If an error or `None` is encountered, terminate the future.</span>
+<span class="doccomment">/// If an error or `None` is encountered, the future terminates.</span>
+<span class="doccomment">/// If EOF is signalled on `reader` by `Ok(0)`, the future terminates.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">handle_connection</span><span class="op">&lt;</span><span class="ident">Reader</span>, <span class="ident">Writer</span><span class="op">&gt;</span>(
     <span class="ident">addr</span>: <span class="ident">SocketAddr</span>,
     <span class="ident">reader</span>: <span class="ident">Reader</span>,

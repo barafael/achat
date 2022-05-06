@@ -48,6 +48,11 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 
 <span class="doccomment">//! A collection of simple modules which showcase simple use of tasks, channels, and other tokio primitives to</span>
@@ -85,6 +90,11 @@
 <span class="doccomment">/// Broadcast messages sent from one client to all other clients using a [`tokio::sync::broadcast`] channel.</span>
 <span class="doccomment">/// Additionally, periodically announce the uptime via a [`tokio::sync::watch`] channel.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chat_with_announce</span>;
+
+<span class="doccomment">/// Broadcast messages sent from one client to all other clients using a [`tokio::sync::broadcast`] channel.</span>
+<span class="doccomment">/// Additionally, commonly share a [`tokio_util::sync::CancellationToken`].</span>
+<span class="doccomment">/// Cancelling this token shuts down all the clients (flushing their readers) and then the entire application.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">chat_with_cancel</span>;
 
 <span class="doccomment">/// Collect messages sent from each connected client (via a [`tokio::sync::mpsc`] channel) and store them in a hashmap.</span>
 <span class="doccomment">/// On a report request by a client via a [`tokio::sync::oneshot`] channel, send</span>
