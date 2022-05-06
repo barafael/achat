@@ -44,6 +44,7 @@ async fn main() -> anyhow::Result<()> {
         };
     }
     .context("Failed to run the accept loop")?;
+
     futures::future::try_join_all(handles)
         .await
         .context("Unable to join client tasks")?
