@@ -34,34 +34,10 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">achat</span>::{<span class="ident">chat</span>, <span class="ident">init_console_subscriber</span>, <span class="ident">Args</span>};
-<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-val">Ok</span>};
+<span class="kw">use</span> <span class="ident">anyhow::Context</span>;
 <span class="kw">use</span> <span class="ident">clap::Parser</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::{<span class="ident">net::TcpListener</span>, <span class="ident">sync::broadcast</span>};
-<span class="kw">use</span> <span class="ident">tokio_util::sync::CancellationToken</span>;
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -77,40 +53,18 @@
 
     <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">_rx</span>) <span class="op">=</span> <span class="ident">broadcast::channel</span>(<span class="number">16</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">handles</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-
-    <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">CancellationToken::new</span>();
     <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">clone</span>();
-        <span class="macro">tokio::select!</span> {
-            <span class="kw">_</span> <span class="op">=</span> <span class="ident">token</span>.<span class="ident">cancelled</span>() =&gt; {
-                <span class="kw">break</span> <span class="prelude-val">Ok</span>(());
-            },
-            <span class="ident">listen</span> <span class="op">=</span> <span class="ident">listener</span>.<span class="ident">accept</span>() =&gt; {
-                <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">socket</span>, <span class="ident">addr</span>) <span class="op">=</span> <span class="ident">listen</span>.<span class="ident">context</span>(<span class="string">&quot;Failed to accept on socket&quot;</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">subscribe</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="kw-2">mut</span> <span class="ident">socket</span>, <span class="ident">addr</span>)) <span class="op">=</span> <span class="ident">listener</span>.<span class="ident">accept</span>().<span class="kw">await</span> {
+            <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="ident">rx</span> <span class="op">=</span> <span class="ident">tx</span>.<span class="ident">subscribe</span>();
 
-                <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> (<span class="ident">reader</span>, <span class="ident">writer</span>) <span class="op">=</span> <span class="ident">socket</span>.<span class="ident">split</span>();
-                    <span class="ident">chat::handle_connection</span>(<span class="ident">addr</span>, <span class="ident">reader</span>, <span class="ident">writer</span>, <span class="ident">tx</span>, <span class="ident">rx</span>)
-                        .<span class="kw">await</span>
-                        .<span class="ident">context</span>(<span class="string">&quot;Failed to handle connection&quot;</span>)<span class="question-mark">?</span>;
-                    <span class="prelude-val">Ok</span>(())
-                });
-                <span class="ident">handles</span>.<span class="ident">push</span>(<span class="ident">h</span>);
-            }
-        };
+            <span class="ident">tokio::spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> (<span class="ident">reader</span>, <span class="ident">writer</span>) <span class="op">=</span> <span class="ident">socket</span>.<span class="ident">split</span>();
+                <span class="ident">chat::handle_connection</span>(<span class="ident">addr</span>, <span class="ident">reader</span>, <span class="ident">writer</span>, <span class="ident">tx</span>, <span class="ident">rx</span>).<span class="kw">await</span>
+            });
+        }
     }
-    .<span class="ident">context</span>(<span class="string">&quot;Failed to run the accept loop&quot;</span>)<span class="question-mark">?</span>;
-
-    <span class="ident">futures::future::try_join_all</span>(<span class="ident">handles</span>)
-        .<span class="kw">await</span>
-        .<span class="ident">context</span>(<span class="string">&quot;Unable to join client tasks&quot;</span>)<span class="question-mark">?</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-        .<span class="ident">context</span>(<span class="string">&quot;Error in client task&quot;</span>)
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="chat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (76d770ac2 2022-04-02)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="chat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (77652b9ef 2022-05-06)" ></div>
 </body></html>
