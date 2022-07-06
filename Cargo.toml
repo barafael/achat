@@ -12,6 +12,10 @@ name = "chat"
 path = "bin/chat.rs"
 
 [[bin]]
+name = "dump_client"
+path = "bin/dump_client.rs"
+
+[[bin]]
 name = "echo"
 path = "bin/echo.rs"
 
