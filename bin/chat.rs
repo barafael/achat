@@ -19,6 +19,8 @@ async fn main() -> anyhow::Result<()> {
 
     loop {
         if let Ok((mut socket, addr)) = listener.accept().await {
+            println!("Received connection from {addr}");
+
             let tx = tx.clone();
             let rx = tx.subscribe();
 
