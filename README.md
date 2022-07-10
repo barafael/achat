@@ -2,6 +2,9 @@
 A collection of simple modules which showcase simple use of tasks, channels, and other tokio primitives to implement simple networking applications.
 Purely educational purposes.
 
+# Documentation
+Just run `cargo doc --open` :) there used to be a GH pages site with docs, which I linked to, apologize. It's gone now.
+
 ## echo
 TCP clients connect to the server. The server returns each message they send back to them.
 
