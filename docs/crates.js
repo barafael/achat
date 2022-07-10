@@ -1,1 +1,0 @@
-window.ALL_CRATES = ["achat","chat","chat_with_announce","chat_with_cancel","collector","echo"];

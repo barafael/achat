@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["handle_connection","Uses [`tokio::io::copy`] to forward bytes."],["handle_connection_manually","Manually loop, recv and send on `reader` and `writer`."]]});

@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["achat"] = [{"text":"impl Freeze for <a class=\"enum\" href=\"achat/collector/enum.Message.html\" title=\"enum achat::collector::Message\">Message</a>","synthetic":true,"types":["achat::collector::Message"]},{"text":"impl Freeze for <a class=\"struct\" href=\"achat/struct.Args.html\" title=\"struct achat::Args\">Args</a>","synthetic":true,"types":["achat::Args"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

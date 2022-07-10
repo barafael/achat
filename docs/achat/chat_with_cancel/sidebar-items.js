@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["handle_connection","Monitor the `reader` and the `rx` for messages. When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`]. When receiving a message on `rx`, where the source socket address is not our own, forward it on `writer` (else, discard it)."]]});
