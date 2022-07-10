@@ -33,7 +33,7 @@ path = "bin/chat_with_cancel.rs"
 
 [[bin]]
 name = "dump_gui"
-path = "bin/dump_gui.rs"
+path = "bin/dump_client_gui.rs"
 
 [dev-dependencies]
 tokio-test = "0.4.2"
