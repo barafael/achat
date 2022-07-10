@@ -39,13 +39,13 @@ path = "bin/dump_client_gui.rs"
 tokio-test = "0.4.2"
 
 [dependencies]
-anyhow = "1.0.57"
-clap = { version = "3.1.18", features = ["derive"] }
-console-subscriber = "0.1.5"
+anyhow = "1.0.58"
+clap = { version = "3.2.8", features = ["derive"] }
+console-subscriber = "0.1.6"
 futures = "0.3.21"
 klask = { git = "https://github.com/barafael/klask" }
-serde_json = "1.0.81"
-tokio = { version = "1.18.2", features = [
+serde_json = "1.0.82"
+tokio = { version = "1.19.2", features = [
     "io-util",
     "macros",
     "net",
@@ -55,4 +55,4 @@ tokio = { version = "1.18.2", features = [
     "time",
     "tracing",
 ] }
-tokio-util = "0.7.1"
+tokio-util = "0.7.3"
