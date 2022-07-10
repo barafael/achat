@@ -5,15 +5,13 @@ use std::str;
 use tokio::{io::AsyncReadExt, net::TcpListener};
 
 fn main() {
-    klask::run_derived::<Args, _>(Settings::default(), start_async);
-}
-
-fn start_async(args: Args) {
-    tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(async { dump_server(args).await.unwrap() });
+    klask::run_derived::<Args, _>(Settings::default(), |args| {
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap()
+            .block_on(async { dump_server(args).await.unwrap() });
+    });
 }
 
 async fn dump_server(args: Args) -> anyhow::Result<()> {
