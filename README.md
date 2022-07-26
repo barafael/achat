@@ -28,3 +28,6 @@ TCP clients connect to the server. Whatever they send, the server will dump on i
 
 ## dump_client_gui
 TCP clients connect to the server. Whatever they send, the server will dump on its `stdout` (same as `dump_client`, except this one has a GUI).
+
+## client
+Opens TCP connection to a server, connects that stream to stdin and stdout.
