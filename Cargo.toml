@@ -48,6 +48,7 @@ tokio-test = "0.4.2"
 
 [dependencies]
 anyhow = "1.0.58"
+bytes = "1.2.1"
 clap = { version = "3.2.8", features = ["derive"] }
 console-subscriber = "0.1.6"
 futures = "0.3.21"

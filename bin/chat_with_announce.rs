@@ -40,6 +40,6 @@ async fn main() -> anyhow::Result<()> {
             chat_with_announce::handle_connection(addr, reader, writer, tx, rx, topic_rx)
                 .await
                 .expect("Failed to handle connection");
-        });
+        })?;
     }
 }

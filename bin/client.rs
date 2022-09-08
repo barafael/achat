@@ -1,4 +1,5 @@
 use achat::Args;
+use bytes::BytesMut;
 use clap::Parser;
 use futures::SinkExt;
 use futures::StreamExt;
@@ -11,7 +12,7 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     let stdin = FramedRead::new(tokio::io::stdin(), BytesCodec::new());
-    let mut stdin = stdin.map(|i| i.map(|bytes| bytes.freeze()));
+    let mut stdin = stdin.map(|i| i.map(BytesMut::freeze));
     let mut stdout = FramedWrite::new(tokio::io::stdout(), BytesCodec::new());
 
     let mut stream = TcpStream::connect(args.address).await?;
