@@ -39,6 +39,10 @@ path = "bin/dump_client_gui.rs"
 name = "client"
 path = "bin/client.rs"
 
+[[bin]]
+name = "client_2"
+path = "bin/client_2.rs"
+
 [dev-dependencies]
 tokio-test = "0.4.2"
 
