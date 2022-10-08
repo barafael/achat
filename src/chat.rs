@@ -5,6 +5,8 @@ use tokio::{
     sync::broadcast,
 };
 
+use crate::is_quit;
+
 /// Monitor the `reader` and the `rx` for messages.
 /// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].
 /// When receiving a message on `rx`, where the source socket address is not our own,
@@ -13,7 +15,7 @@ use tokio::{
 /// # Termination
 /// If an error or `None` is encountered, the future terminates.
 /// If EOF is signalled on `reader` by `Ok(0)`, the future terminates.
-/// If the text read from `reader` is `quit` or `quit\r\n`, the future terminates.
+/// If the text read from `reader` is `"quit"` or `"quit\n"` or `"quit\r\n"`, the future terminates.
 pub async fn handle_connection<Reader, Writer>(
     addr: SocketAddr,
     reader: Reader,
@@ -34,7 +36,7 @@ where
                 if bytes_read == 0 {
                     break Ok::<(), anyhow::Error>(()); // EOF detected.
                 }
-                if line == "quit" || line == "quit\r\n" {
+                if is_quit(&line) {
                     break Ok(());
                 }
                 tx.send((format!("{addr}: {line}"), addr)).context("Failed to broadcast message")?;

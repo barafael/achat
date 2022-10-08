@@ -29,6 +29,12 @@ pub fn init_console_subscriber(addr: &str) {
         .init();
 }
 
+/// Is it a quit message?
+/// If the `line` is `"quit"` or `"quit\n"` or `"quit\r\n"`, return `true`.
+pub fn is_quit(line: &str) -> bool {
+    line == "quit" || line == "quit\n" || line == "quit\r\n"
+}
+
 /// Broadcast messages sent from one client to all other clients using a [`tokio::sync::broadcast`] channel.
 pub mod chat;
 

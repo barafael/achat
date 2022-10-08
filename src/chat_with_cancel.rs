@@ -14,8 +14,9 @@ use tokio_util::sync::CancellationToken;
 /// # Termination
 /// If an error or `None` is encountered, the future terminates.
 /// If EOF is signalled on `reader` by `Ok(0)`, the future terminates.
-/// If the text read from `reader` is `quit` or `quit\r\n`, the future terminates.
-/// If the text read from `reader` is `call it a day` or `call it a day\r\n`, the [`tokio_util::sync::CancellationToken`] is cancelled.
+/// If the text read from `reader` is `"quit"` or `"quit\n"` or `"quit\r\n"`, the future terminates.
+/// If the text read from `reader` is `"call it a day"` or `"call it a day\n"` or `"call it a day\r\n"`,
+/// the [`tokio_util::sync::CancellationToken`] is triggered.
 /// If the `token` is cancelled somewhere else, the future terminates.
 pub async fn handle_connection<Reader, Writer>(
     addr: SocketAddr,
@@ -38,7 +39,7 @@ where
                 if bytes_read == 0 {
                     break Ok::<(), anyhow::Error>(()); // EOF detected.
                 }
-                if line == "call it a day" || line == "call it a day\r\n" {
+                if is_termination_message(&line) {
                     token.cancel();
                 }
                 if line == "quit" || line == "quit\r\n" {
@@ -68,6 +69,10 @@ where
         .context("Unable to shut down client writer")
 }
 
+/// If the `line` is `"call it a day"` or `"call it a day\n"` or `"call it a day\r\n"`, return `true`.
+fn is_termination_message(line: &str) -> bool {
+    line == "call it a day" || line == "call it a day\n" || line == "call it a day\r\n"
+}
 #[cfg(test)]
 mod test {
     use super::*;

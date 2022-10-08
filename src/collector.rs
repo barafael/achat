@@ -23,7 +23,7 @@ pub enum Message {
     },
 }
 
-/// Receive messages on reader. When receiving `"report\r\n"`,
+/// Receive messages on reader. When receiving `"report"` or `"report\n"` or `"report\r\n"`,
 /// send a report request, await the reply, and forward it on `writer`.
 /// Else, just forward the message on the collection sender `tx`.
 ///
@@ -47,7 +47,7 @@ where
             if bytes_read == 0 {
                 break Ok(());
             }
-            if line.as_str() == "report\r\n" {
+            if is_report(&line) {
                 let (sender, receiver) = oneshot::channel();
                 let request = Message::Report { reply: sender };
                 tx.send(request)
@@ -69,6 +69,11 @@ where
             line.clear();
         }
     }
+}
+
+/// If `line` is `"report"` or `"report\n"` or `"report\r\n"`, return `true`.
+fn is_report(line: &str) -> bool {
+    line == "report" || line == "report\n" || line == "report\r\n"
 }
 
 /// Receive messages on the given [`tokio::sync::mpsc::Receiver`].
