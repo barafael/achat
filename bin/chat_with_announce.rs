@@ -35,11 +35,11 @@ async fn main() -> anyhow::Result<()> {
         let rx = tx.subscribe();
         let topic_rx = topic_rx.clone();
 
-        tokio::task::Builder::new().spawn(async move {
+        tokio::task::spawn(async move {
             let (reader, writer) = socket.split();
             chat_with_announce::handle_connection(addr, reader, writer, tx, rx, topic_rx)
                 .await
                 .expect("Failed to handle connection");
-        })?;
+        });
     }
 }
