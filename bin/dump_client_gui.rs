@@ -1,11 +1,11 @@
-use achat::{init_console_subscriber, Args};
+use achat::{init_console_subscriber, Arguments};
 use anyhow::Context;
 use klask::Settings;
 use std::str;
 use tokio::{io::AsyncReadExt, net::TcpListener};
 
 fn main() {
-    klask::run_derived::<Args, _>(Settings::default(), |args| {
+    klask::run_derived::<Arguments, _>(Settings::default(), |args| {
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -14,9 +14,9 @@ fn main() {
     });
 }
 
-async fn dump_server(args: Args) -> anyhow::Result<()> {
+async fn dump_server(args: Arguments) -> anyhow::Result<()> {
     if let Some(addr) = args.console {
-        init_console_subscriber(&addr);
+        init_console_subscriber(addr);
     }
     let listener = TcpListener::bind(&args.address)
         .await

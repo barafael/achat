@@ -1,4 +1,4 @@
-use achat::{chat_with_cancel, init_console_subscriber, Args};
+use achat::{chat_with_cancel, init_console_subscriber, Arguments};
 use anyhow::{Context, Ok};
 use clap::Parser;
 use tokio::{net::TcpListener, sync::broadcast};
@@ -6,10 +6,10 @@ use tokio_util::sync::CancellationToken;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let args = Arguments::parse();
 
     if let Some(addr) = args.console {
-        init_console_subscriber(&addr);
+        init_console_subscriber(addr);
     }
 
     let listener = TcpListener::bind(&args.address)

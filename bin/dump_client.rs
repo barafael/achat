@@ -1,4 +1,4 @@
-use achat::{init_console_subscriber, Args};
+use achat::{init_console_subscriber, Arguments};
 use anyhow::Context;
 use clap::Parser;
 use std::str;
@@ -7,10 +7,10 @@ use tokio::net::TcpListener;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let args = Arguments::parse();
 
     if let Some(addr) = args.console {
-        init_console_subscriber(&addr);
+        init_console_subscriber(addr);
     }
 
     let listener = TcpListener::bind(&args.address)

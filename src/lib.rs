@@ -3,29 +3,17 @@
 //! A collection of simple modules which showcase simple use of tasks, channels, and other tokio primitives to
 //! implement simple networking applications.
 
-use clap::Parser;
+pub use arguments::Arguments;
 use std::net::SocketAddr;
 use std::time::Duration;
 
-/// Command Line Arguments.
-#[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
-pub struct Args {
-    /// Address to listen on.
-    #[clap(short, long)]
-    pub address: String,
-
-    /// Address to publish console events on.
-    #[clap(short, long)]
-    pub console: Option<String>,
-}
+mod arguments;
 
 /// Initialize the console subscriber at the address indicated.
-pub fn init_console_subscriber(addr: &str) {
-    let console: SocketAddr = addr.parse().unwrap();
+pub fn init_console_subscriber(addr: impl Into<SocketAddr>) {
     console_subscriber::ConsoleLayer::builder()
         .retention(Duration::from_secs(60))
-        .server_addr(console)
+        .server_addr(addr)
         .init();
 }
 

@@ -1,11 +1,13 @@
-use achat::Args;
+use achat::Arguments;
 use clap::Parser;
-use tokio::io::{copy, stdin, stdout};
-use tokio::net::TcpStream;
+use tokio::{
+    io::{copy, stdin, stdout},
+    net::TcpStream,
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let args = Arguments::parse();
 
     let mut stream = TcpStream::connect(args.address).await?;
     let (mut reader, mut writer) = stream.split();

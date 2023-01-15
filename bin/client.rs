@@ -1,4 +1,4 @@
-use achat::Args;
+use achat::Arguments;
 use bytes::BytesMut;
 use clap::Parser;
 use futures::SinkExt;
@@ -9,7 +9,7 @@ use tokio_util::codec::{BytesCodec, FramedRead, FramedWrite};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let args = Arguments::parse();
 
     let stdin = FramedRead::new(tokio::io::stdin(), BytesCodec::new());
     let mut stdin = stdin.map(|i| i.map(BytesMut::freeze));

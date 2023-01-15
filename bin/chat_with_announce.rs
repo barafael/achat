@@ -1,5 +1,5 @@
 use achat::chat_with_announce::{self, announce_uptime};
-use achat::{init_console_subscriber, Args};
+use achat::{init_console_subscriber, Arguments};
 use anyhow::Context;
 use clap::Parser;
 use std::time::Duration;
@@ -10,10 +10,10 @@ use tokio::{
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let args = Arguments::parse();
 
     if let Some(console) = args.console {
-        init_console_subscriber(&console);
+        init_console_subscriber(console);
     }
 
     let listener = TcpListener::bind(&args.address)
