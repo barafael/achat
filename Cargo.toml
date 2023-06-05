@@ -7,46 +7,6 @@ repository = "https://github.com/barafael/achat"
 license = "Apache-2.0"
 default-run = "chat"
 
-[[bin]]
-name = "chat"
-path = "bin/chat.rs"
-
-[[bin]]
-name = "dump_client"
-path = "bin/dump_client.rs"
-
-[[bin]]
-name = "echo"
-path = "bin/echo.rs"
-
-[[bin]]
-name = "collector"
-path = "bin/collector.rs"
-
-[[bin]]
-name = "chat_with_announce"
-path = "bin/chat_with_announce.rs"
-
-[[bin]]
-name = "chat_with_cancel"
-path = "bin/chat_with_cancel.rs"
-
-[[bin]]
-name = "dump_gui"
-path = "bin/dump_client_gui.rs"
-
-[[bin]]
-name = "client"
-path = "bin/client.rs"
-
-[[bin]]
-name = "client_2"
-path = "bin/client_2.rs"
-
-[[bin]]
-name = "client_3"
-path = "bin/client_3.rs"
-
 [dev-dependencies]
 tokio-test = "0.4.2"
 

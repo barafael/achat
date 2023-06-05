@@ -6,7 +6,7 @@ use tokio::{
 };
 
 /// Monitor the `reader`, `rx` and `topic_rx` for messages.
-/// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].
+/// When receiving bytes on `reader`, forward them on the [`broadcast::Sender`].
 /// When receiving a message on `rx`, where the source socket address is not our own,
 /// forward it on `writer` (else, discard it).
 /// When the content of `topic_rx` changed, fetch it, then format and forward it on `writer`.
@@ -54,7 +54,7 @@ where
     }
 }
 
-/// Periodically send a message on the given `topic` ([`tokio::sync::watch::Sender`]).
+/// Periodically send a message on the given `topic` ([`watch::Sender`]).
 /// The message will be `"Up for Xs"`, where `X` increases in steps given in `duration`.
 /// The interval period is given by `duration`.
 pub async fn announce_uptime(

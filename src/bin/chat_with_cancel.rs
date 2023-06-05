@@ -41,7 +41,7 @@ async fn main() -> anyhow::Result<()> {
                 });
                 handles.push(h);
             }
-        };
+        }
     }
     .context("Failed to run the accept loop")?;
     futures::future::try_join_all(handles)

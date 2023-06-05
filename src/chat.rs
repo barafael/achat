@@ -8,7 +8,7 @@ use tokio::{
 use crate::is_quit;
 
 /// Monitor the `reader` and the `rx` for messages.
-/// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].
+/// When receiving bytes on `reader`, forward them on the [`broadcast::Sender`].
 /// When receiving a message on `rx`, where the source socket address is not our own,
 /// forward it on `writer` (else, discard it).
 ///

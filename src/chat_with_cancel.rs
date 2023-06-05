@@ -7,7 +7,7 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 
 /// Monitor the `reader` and the `rx` for messages.
-/// When receiving bytes on `reader`, forward them on the [`tokio::sync::broadcast::Sender`].
+/// When receiving bytes on `reader`, forward them on the [`broadcast::Sender`].
 /// When receiving a message on `rx`, where the source socket address is not our own,
 /// forward it on `writer` (else, discard it).
 ///
@@ -16,7 +16,7 @@ use tokio_util::sync::CancellationToken;
 /// If EOF is signalled on `reader` by `Ok(0)`, the future terminates.
 /// If the text read from `reader` is `"quit"` or `"quit\n"` or `"quit\r\n"`, the future terminates.
 /// If the text read from `reader` is `"call it a day"` or `"call it a day\n"` or `"call it a day\r\n"`,
-/// the [`tokio_util::sync::CancellationToken`] is triggered.
+/// the [`CancellationToken`] is triggered.
 /// If the `token` is cancelled somewhere else, the future terminates.
 pub async fn handle_connection<Reader, Writer>(
     addr: SocketAddr,

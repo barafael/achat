@@ -76,9 +76,9 @@ fn is_report(line: &str) -> bool {
     line == "report" || line == "report\n" || line == "report\r\n"
 }
 
-/// Receive messages on the given [`tokio::sync::mpsc::Receiver`].
+/// Receive messages on the given [`mpsc::Receiver`].
 /// On receiving a simple text message, just add it to the hashmap (the key being the source socket address).
-/// On receiving a report message including a reply callback ([`tokio::sync::oneshot::Sender`]), serialize the hashmap, then send it on the callback.
+/// On receiving a report message including a reply callback ([`oneshot::Sender`]), serialize the hashmap, then send it on the callback.
 ///
 /// # Termination
 /// In case there are no more senders, terminate the future.
