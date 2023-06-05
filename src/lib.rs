@@ -13,7 +13,7 @@ mod arguments;
 pub fn init_console_subscriber(addr: impl Into<SocketAddr>) {
     console_subscriber::ConsoleLayer::builder()
         .retention(Duration::from_secs(60))
-        .server_addr(addr)
+        .server_addr(addr.into())
         .init();
 }
 
