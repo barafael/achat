@@ -1,8 +1,11 @@
 # achat
+
+[![Rust](https://github.com/barafael/achat/actions/workflows/rust.yml/badge.svg)](https://github.com/barafael/achat/actions/workflows/rust.yml)
+
 A collection of simple modules which showcase simple use of tasks, channels, and other tokio primitives to implement simple networking applications.
 Purely educational purposes.
 
-# Documentation
+## Documentation
 Just run `cargo doc --open` :) there used to be a GH pages site with docs, which I linked to, apologize. It's gone now. I have rewritten the git history for this repo because it was just unwieldy large, sorry for the hassle :)
 
 ## echo
@@ -31,3 +34,5 @@ TCP clients connect to the server. Whatever they send, the server will dump on i
 
 ## client
 Opens TCP connection to a server, connects that stream to stdin and stdout.
+
+## There are more, just have a look
