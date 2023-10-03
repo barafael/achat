@@ -108,9 +108,8 @@ mod test {
         tokio::join!(handle).0.unwrap().unwrap();
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn receives_message() {
-        tokio::time::pause();
         let writer = Mock::new().write(b"how's it going").build();
         // give the writer time to be written before reader is read, returning 'no data', ending handle_connection.
         let reader = Mock::new().wait(Duration::from_secs(1)).build();
@@ -136,9 +135,8 @@ mod test {
         tokio::join!(handle).0.unwrap().unwrap();
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn announces_time() {
-        tokio::time::pause();
         let (tx, mut rx) = watch::channel("initial".to_string());
         let duration = Duration::from_secs(1);
 
@@ -160,9 +158,8 @@ mod test {
         tokio::join!(handle).0.unwrap().unwrap();
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn forwards_announcements_to_clients() {
-        tokio::time::pause();
         let writer = Mock::new()
             .write(b"Announcement: hello\n")
             .write(b"Announcement: i'm\n")

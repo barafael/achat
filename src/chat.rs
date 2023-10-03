@@ -93,9 +93,8 @@ mod test {
         tokio::join!(handle).0.unwrap().unwrap();
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     async fn receives_message() {
-        tokio::time::pause();
         let writer = Mock::new().write(b"how's it going").build();
         // give the writer time to be written before reader is read, returning 'no data', ending handle_connection.
         let reader = Mock::new().wait(Duration::from_secs(1)).build();
